@@ -16,6 +16,7 @@ Libdetect is a fully automatic sub-pixel checkerboard / chessboard pattern detec
 > chessboards_from_corners(corners, chessboards);  
 > plot_chessboards(img, corners, chessboards);
 
+![image](https://github.com/ftdlyc/libcbdetect/blob/master/example_data/e2_result.png)  
     
 #### Reference Papers
 [1]  Andreas Geiger and Frank Moosmann and Oemer Car and Bernhard Schuster, Automatic Calibration of Range and Camera Sensors using a single Shot, ICRA, 2012  
