@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
   std::vector<std::vector<std::vector<int>>> chessboards;
 
   cv::Mat img = cv::imread(argv[1], cv::IMREAD_GRAYSCALE);
-  cbdetect::find_corners(img, 0.01, corners);
+  cbdetect::find_corners(img, corners, {true, false, 0.01});
   cbdetect::plot_corners(img, corners);
   cbdetect::chessboards_from_corners(corners, chessboards);
   cbdetect::plot_chessboards(img, corners, chessboards);
