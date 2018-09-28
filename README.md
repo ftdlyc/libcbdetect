@@ -11,7 +11,8 @@ Libdetect is a fully automatic sub-pixel checkerboard / chessboard pattern detec
 #### Example
 > using namespace cbdetect;  
 > cv::Mat img = cv::imread("image.bmp", cv::IMREAD_GRAYSCALE);  
-> find_corners(img, 0.01, corners);  
+> Params params { true, true, 0.01 };  
+> find_corners(img, corners, params);  
 > plot_corners(img, corners);  
 > chessboards_from_corners(corners, chessboards);  
 > plot_chessboards(img, corners, chessboards);
