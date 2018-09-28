@@ -27,7 +27,11 @@ namespace cbdetect {
 
 void plot_corners(const cv::Mat &img, const Corner &corners) {
   cv::Mat img_show;
-  cv::cvtColor(img, img_show, CV_GRAY2BGR);
+  if (img.channels() != 3) {
+    cv::cvtColor(img, img_show, CV_GRAY2BGR);
+  } else {
+    img_show = img.clone();
+  }
   for (int i = 0; i < corners.p.size(); ++i) {
     cv::line(img_show, corners.p[i], corners.p[i] + 20 * corners.v1[i], cv::Scalar(255, 0, 0), 2);
     cv::line(img_show, corners.p[i], corners.p[i] + 20 * corners.v2[i], cv::Scalar(0, 255, 0), 2);

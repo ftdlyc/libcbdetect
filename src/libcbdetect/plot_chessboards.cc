@@ -29,7 +29,11 @@ namespace cbdetect {
 void plot_chessboards(const cv::Mat &img, const Corner &corners,
                       const std::vector<std::vector<std::vector<int>>> &chessboards) {
   cv::Mat img_show;
-  cv::cvtColor(img, img_show, CV_GRAY2BGR);
+  if (img.channels() != 3) {
+    cv::cvtColor(img, img_show, CV_GRAY2BGR);
+  } else {
+    img_show = img.clone();
+  }
 
   for (int n = 0; n < chessboards.size(); ++n) {
     const auto &chessboard = chessboards[n];

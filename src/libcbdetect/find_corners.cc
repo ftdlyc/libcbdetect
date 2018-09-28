@@ -132,10 +132,18 @@ void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &pa
 }
 
 void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
+  // image type check
+  cv::Mat img_grey;
+  if (img.channels() == 3) {
+    cv::cvtColor(img, img_grey, CV_BGRA2GRAY);
+  } else {
+    img_grey = img.clone();
+  }
+
   cv::Mat img_resized;
-  cv::resize(img, img_resized, cv::Size(img.cols / 2, img.rows / 2), 0, 0, cv::INTER_LINEAR);
+  cv::resize(img_grey, img_resized, cv::Size(img_grey.cols / 2, img_grey.rows / 2), 0, 0, cv::INTER_LINEAR);
   Corner corners_1, corners_2;
-  find_corners_in_image(img, corners_1, params);
+  find_corners_in_image(img_grey, corners_1, params);
   find_corners_in_image(img_resized, corners_2, params);
   std::for_each(corners_2.p.begin(), corners_2.p.end(), [](auto &p) { p *= 2; });
 
