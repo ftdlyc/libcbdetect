@@ -19,27 +19,17 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#ifndef LIBCBDETECT_FIND_CORNERS_H
-#define LIBCBDETECT_FIND_CORNERS_H
-
-#include <vector>
-#include <opencv2/opencv.hpp>
-#include "config.h"
+#ifndef LIBCBDETECT_CONFIG_H
+#define LIBCBDETECT_CONFIG_H
 
 namespace cbdetect {
 
-typedef struct Corner {
-  std::vector<cv::Point2d> p;
-  std::vector<int> r;
-  std::vector<cv::Point2d> v1;
-  std::vector<cv::Point2d> v2;
-  std::vector<double> score;
-} Corner;
-
-void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &params = {true, false, 0.01});
-
-void find_corners(const cv::Mat &img, Corner &corners, const Params &params = {true, false, 0.01});
+typedef struct Params {
+  bool fast_mode;
+  bool show_processing;
+  double tau;
+} Params;
 
 }
 
-#endif //CALIBRATION_FIND_CORNERS_H
+#endif //LIBCBDETECT_CONFIG_H

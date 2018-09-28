@@ -33,7 +33,7 @@
 
 namespace cbdetect {
 
-void find_corners_in_image(const cv::Mat &img, double tau, Corner &corners) {
+void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &params) {
   // convert to double grayscale image
   cv::Mat img_norm;
   img.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
@@ -43,19 +43,23 @@ void find_corners_in_image(const cv::Mat &img, double tau, Corner &corners) {
   image_normalization_and_gradients(img_norm, img_du, img_dv, img_angle, img_weight);
 
   // templates and scales
-  std::vector<double> tprops{0, M_PI_2,
-                             M_PI_4, -M_PI_4,
-                             0, M_PI_4,
-                             0, -M_PI_4,
-                             M_PI_4, M_PI_2,
-                             -M_PI_4, M_PI_2,
-                             -3 * M_PI / 8, 3 * M_PI / 8,
-                             -M_PI / 8, M_PI / 8,
-                             -M_PI / 8, -3 * M_PI / 8,
-                             M_PI / 8, 3 * M_PI / 8};
+  std::vector<double> tprops;
+  if (params.fast_mode) {
+    tprops = {0, M_PI_2,
+              M_PI_4, -M_PI_4};
+  } else {
+    tprops = {0, M_PI_2,
+              M_PI_4, -M_PI_4,
+              0, M_PI_4,
+              0, -M_PI_4,
+              M_PI_4, M_PI_2,
+              -M_PI_4, M_PI_2,
+              -3 * M_PI / 8, 3 * M_PI / 8,
+              -M_PI / 8, M_PI / 8,
+              -M_PI / 8, -3 * M_PI / 8,
+              M_PI / 8, 3 * M_PI / 8};
+  }
   std::vector<int> radius{4, 6, 10};
-
-  printf("Filtering image (%d x %d) ... ", img_norm.cols, img_norm.rows);
 
   // for all scales do
   corners.p.clear();
@@ -94,41 +98,45 @@ void find_corners_in_image(const cv::Mat &img, double tau, Corner &corners) {
       // combine both
       img_corners = cv::max(img_corners, cv::max(img_corners_s1, img_corners_s2));
     }
-    non_maximum_suppression(img_corners, 1, tau, r, corners);
+    non_maximum_suppression(img_corners, 1, params.tau, r, corners);
   }
 
   if (corners.p.empty()) { return; }
-  printf("%lu\n", corners.p.size());
+  if (params.show_processing) {
+    printf("Filtering image (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+  }
 
   // pre-filter corners according to zero crossings
-  printf("Filtering corners (%d x %d) ...", img_norm.cols, img_norm.rows);
   filter_corners(img_norm, img_angle, img_weight, radius, corners);
-  printf("%lu\n", corners.p.size());
+  if (params.show_processing) {
+    printf("Filtering corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+  }
 
   // subpixel refinement
-  printf("Refining corners (%d x %d) ... ", img_norm.cols, img_norm.rows);
   refine_corners(img_du, img_dv, img_angle, img_weight, radius, corners);
-  printf("%lu\n", corners.p.size());
-
+  if (params.show_processing) {
+    printf("Refining corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+  }
 
   // score corners
-  printf("Scoring corners (%d x %d) ... ", img_norm.cols, img_norm.rows);
   sorce_corners(img_norm, img_weight, radius, corners);
 
   // remove low scoring corners
-  remove_low_scoring_corners(tau, corners);
+  remove_low_scoring_corners(params.tau, corners);
 
   // non maximum suppression
   non_maximum_suppression_sparse(corners, 3, img.size());
-  printf("%lu\n", corners.p.size());
+  if (params.show_processing) {
+    printf("Scoring corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+  }
 }
 
-void find_corners(const cv::Mat &img, double tau, Corner &corners) {
+void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   cv::Mat img_resized;
   cv::resize(img, img_resized, cv::Size(img.cols / 2, img.rows / 2), 0, 0, cv::INTER_LINEAR);
   Corner corners_1, corners_2;
-  find_corners_in_image(img, tau, corners_1);
-  find_corners_in_image(img_resized, tau, corners_2);
+  find_corners_in_image(img, corners_1, params);
+  find_corners_in_image(img_resized, corners_2, params);
   std::for_each(corners_2.p.begin(), corners_2.p.end(), [](auto &p) { p *= 2; });
 
   int n_1 = corners_1.p.size();
@@ -154,7 +162,7 @@ void find_corners(const cv::Mat &img, double tau, Corner &corners) {
     }
   }
 
-  printf("Total find corners ... %lu\n", corners.p.size());
+  if (params.show_processing) { printf("Total find corners ... %lu\n", corners.p.size()); }
 }
 
 }
