@@ -113,7 +113,7 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
     int r = corners.r[i];
 
     // estimate edge orientations (continue, if too close to border)
-    if (u_init - r < 0 || u_init + r >= width || v_init - r < 0 || v_init + r >= height) { continue; }
+    if (u_init - r < 0 || u_init + r >= width - 1 || v_init - r < 0 || v_init + r >= height - 1) { continue; }
     cv::Mat img_angle_sub, img_weight_sub;
     get_rect_subpixel(img_angle, u_init, v_init, r, img_angle_sub);
     get_rect_subpixel(img_weight, u_init, v_init, r, img_weight_sub);
@@ -176,7 +176,7 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
 
       // get subpixel gradiant
       cv::Mat img_du_sub, img_dv_sub;
-      if (u_cur - r < 0 || u_cur + r >= width || v_cur - r < 0 || v_cur + r >= height) { break; }
+      if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) { break; }
       get_rect_subpixel(img_du, u_cur, v_cur, r, img_du_sub);
       get_rect_subpixel(img_dv, u_cur, v_cur, r, img_dv_sub);
 
@@ -210,7 +210,7 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
             G.at<double>(1, 0) += o_du * o_dv;
             G.at<double>(1, 1) += o_dv * o_dv;
             b.at<double>(0, 0) += o_du * o_du * (i2 - r + u_cur) + o_du * o_dv * (j2 - r + v_cur);
-            b.at<double>(0, 1) += o_du * o_dv * (i2 - r + u_cur) + o_dv * o_dv * (j2 - r + v_cur);
+            b.at<double>(1, 0) += o_du * o_dv * (i2 - r + u_cur) + o_dv * o_dv * (j2 - r + v_cur);
           }
         }
       }
