@@ -22,6 +22,7 @@
 #include "score_corners.h"
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "create_correlation_patch.h"
 #include "find_corners.h"
 #include "weight_mask.h"

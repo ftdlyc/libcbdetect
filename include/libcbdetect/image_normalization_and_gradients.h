@@ -23,11 +23,12 @@
 #define LIBCBDETECT_BOX_FILTER_H
 
 #include <opencv2/opencv.hpp>
+#include "config.h"
 
 namespace cbdetect {
 
-void image_normalization_and_gradients(cv::Mat &img, cv::Mat &img_du, cv::Mat &img_dv,
-                                       cv::Mat &img_angle, cv::Mat &img_weight);
+LIBCBDETECT_DLL_DECL void image_normalization_and_gradients(cv::Mat &img, cv::Mat &img_du, cv::Mat &img_dv,
+                                                            cv::Mat &img_angle, cv::Mat &img_weight);
 
 }
 

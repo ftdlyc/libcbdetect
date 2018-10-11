@@ -22,6 +22,7 @@
 #include "refine_corners.h"
 #include <cmath>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "find_corners.h"
 #include "find_modes_meanshift.h"
 #include "weight_mask.h"

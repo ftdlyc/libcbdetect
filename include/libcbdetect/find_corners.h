@@ -28,17 +28,11 @@
 
 namespace cbdetect {
 
-typedef struct Corner {
-  std::vector<cv::Point2d> p;
-  std::vector<int> r;
-  std::vector<cv::Point2d> v1;
-  std::vector<cv::Point2d> v2;
-  std::vector<double> score;
-} Corner;
+LIBCBDETECT_DLL_DECL void find_corners_in_image(const cv::Mat &img, Corner &corners,
+                                                const Params &params = {true, false, 0.01});
 
-void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &params = {true, false, 0.01});
-
-void find_corners(const cv::Mat &img, Corner &corners, const Params &params = {true, false, 0.01});
+LIBCBDETECT_DLL_DECL void find_corners(const cv::Mat &img, Corner &corners,
+                                       const Params &params = {true, false, 0.01});
 
 }
 

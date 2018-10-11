@@ -26,12 +26,14 @@
 #include "find_corners.h"
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 
 namespace cbdetect {
 
-void sorce_corners(const cv::Mat &img, const cv::Mat &img_weight, const std::vector<int> &radius, Corner &corners);
+LIBCBDETECT_DLL_DECL void sorce_corners(const cv::Mat &img, const cv::Mat &img_weight, const std::vector<int> &radius,
+                                        Corner &corners);
 
-void remove_low_scoring_corners(double tau, Corner &corners);
+LIBCBDETECT_DLL_DECL void remove_low_scoring_corners(double tau, Corner &corners);
 
 }
 

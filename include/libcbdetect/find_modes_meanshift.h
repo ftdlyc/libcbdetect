@@ -24,10 +24,12 @@
 #define LIBCBDETECT_FIND_MODES_MEANSHIFT_H
 
 #include <vector>
+#include "config.h"
 
 namespace cbdetect {
 
-std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<double> &hist, double sigma);
+LIBCBDETECT_DLL_DECL std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<double> &hist,
+                                                                              double sigma);
 
 }
 

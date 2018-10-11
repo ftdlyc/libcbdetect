@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <vector>
 #include "chessboards_from_corners.h"
+#include "config.h"
 #include "init_chessboard.h"
 #include "find_corners.h"
 #include "grow_chessboard.h"

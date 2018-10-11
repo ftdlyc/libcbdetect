@@ -24,10 +24,12 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 
 namespace cbdetect {
 
-void create_correlation_patch(std::vector<cv::Mat> &template_kernel, double angle_1, double angle_2, int radius);
+LIBCBDETECT_DLL_DECL void create_correlation_patch(std::vector<cv::Mat> &template_kernel,
+                                                   double angle_1, double angle_2, int radius);
 
 }
 

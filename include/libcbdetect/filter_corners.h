@@ -24,12 +24,13 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat &img_weight,
-                    const std::vector<int> &radius, Corner &corner);
+LIBCBDETECT_DLL_DECL void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat &img_weight,
+                                         const std::vector<int> &radius, Corner &corner);
 
 }
 

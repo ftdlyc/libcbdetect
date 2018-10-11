@@ -23,11 +23,13 @@
 #define LIBCBDETECT_GROW_CHESSBOARD_H
 
 #include <vector>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void grow_chessboard(const Corner &corners, std::vector<std::vector<int>> &chessboard, int border_type);
+LIBCBDETECT_DLL_DECL void grow_chessboard(const Corner &corners, std::vector<std::vector<int>> &chessboard,
+                                          int border_type);
 
 }
 

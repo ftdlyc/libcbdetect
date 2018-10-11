@@ -21,6 +21,7 @@
 
 #include "create_correlation_patch.h"
 #include <cmath>
+#include "config.h"
 
 namespace cbdetect {
 

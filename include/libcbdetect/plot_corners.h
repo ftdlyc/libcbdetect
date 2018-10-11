@@ -24,11 +24,12 @@
 #define LIBCBDETECT_PLOT_CORNERS_H
 
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void plot_corners(const cv::Mat &img, const Corner &corners);
+LIBCBDETECT_DLL_DECL void plot_corners(const cv::Mat &img, const Corner &corners);
 
 }
 

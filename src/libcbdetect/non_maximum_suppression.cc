@@ -22,6 +22,7 @@
 #include "non_maximum_suppression.h"
 #include <cstring>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 
 namespace cbdetect {
 

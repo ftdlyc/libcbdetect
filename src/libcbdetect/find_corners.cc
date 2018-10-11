@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "create_correlation_patch.h"
 #include "filter_corners.h"
 #include "image_normalization_and_gradients.h"

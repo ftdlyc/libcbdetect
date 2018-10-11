@@ -23,6 +23,7 @@
 #include <cmath>
 #include <opencv2/core/hal/hal.hpp>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 
 namespace cbdetect {
 

@@ -23,13 +23,14 @@
 #define LIBCBDETECT_NON_MAXIMUM_SUPPRESSION_H
 
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void non_maximum_suppression(const cv::Mat &img, int n, double tau, int margin, Corner &corners);
+LIBCBDETECT_DLL_DECL void non_maximum_suppression(const cv::Mat &img, int n, double tau, int margin, Corner &corners);
 
-void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size);
+LIBCBDETECT_DLL_DECL void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size);
 
 }
 

@@ -25,12 +25,13 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void plot_chessboards(const cv::Mat &img, const Corner &corners,
-                      const std::vector<std::vector<std::vector<int>>> &chessboards);
+LIBCBDETECT_DLL_DECL void plot_chessboards(const cv::Mat &img, const Corner &corners,
+                                           const std::vector<std::vector<std::vector<int>>> &chessboards);
 
 }
 

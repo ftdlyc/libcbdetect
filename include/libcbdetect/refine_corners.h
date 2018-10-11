@@ -23,12 +23,13 @@
 #define LIBCBDETECT_REFINE_CORNERS_H
 
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat &img_angle, const cv::Mat &img_weight,
-                    const std::vector<int> radius, Corner &corners);
+LIBCBDETECT_DLL_DECL void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat &img_angle,
+                                         const cv::Mat &img_weight, const std::vector<int> radius, Corner &corners);
 
 }
 

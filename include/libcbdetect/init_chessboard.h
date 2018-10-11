@@ -22,11 +22,12 @@
 #define LIBCBDETECT_INIT_CHESSBOARD_H
 
 #include <vector>
+#include "config.h"
 #include "find_corners.h"
 
 namespace cbdetect {
 
-void init_chessboard(const Corner &corners, int idx, std::vector<std::vector<int>> &chessboard);
+LIBCBDETECT_DLL_DECL void init_chessboard(const Corner &corners, int idx, std::vector<std::vector<int>> &chessboard);
 
 }
 
