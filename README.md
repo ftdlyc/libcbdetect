@@ -5,7 +5,7 @@ Unofficial implemention of [libcbdetect](http://www.cvlibs.net/software/libcbdet
 Libdetect is a fully automatic sub-pixel checkerboard / chessboard pattern detection. The algorithm autmatically extracts corners to sub-pixel accuracy and combines them to (rectangular) checkerboards / chessboard-like patterns.  
   
 #### Require
-- C++ 11  
+- C++ 14  
 - Opencv >= 3.0  
   
 #### Example
