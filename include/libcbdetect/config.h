@@ -43,10 +43,29 @@
 
 namespace cbdetect {
 
+enum DetectMethod {
+  TemplateMatchFast = 0,
+  TemplateMatchSlow,
+  HessianResponse
+};
+
 typedef struct Params {
-  bool fast_mode;
   bool show_processing;
-  double tau;
+  bool norm;
+  int norm_half_kernel_size;
+  double hessian_thr;
+  double score_thr;
+  DetectMethod detct_mode;
+  std::vector<int> radius;
+  Params() {
+    show_processing = false;
+    norm = false;
+    norm_half_kernel_size = 31;
+    hessian_thr = 0.01;
+    score_thr = 0.01;
+    detct_mode = TemplateMatchFast;
+    radius = {4, 6, 10};
+  }
 } Params;
 
 typedef struct Corner {

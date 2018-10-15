@@ -19,8 +19,9 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#ifndef LIBCBDETECT_FIND_CORNERS_H
-#define LIBCBDETECT_FIND_CORNERS_H
+
+#ifndef LIBCBDETECT_GET_INIT_LOCATION_H
+#define LIBCBDETECT_GET_INIT_LOCATION_H
 
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -28,12 +29,8 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void find_corners_in_image(const cv::Mat &img, Corner &corners,
-                                                const Params &params = Params());
-
-LIBCBDETECT_DLL_DECL void find_corners(const cv::Mat &img, Corner &corners,
-                                       const Params &params = Params());
+void get_init_location(const cv::Mat &img, Corner &corners, const Params &parmas);
 
 }
 
-#endif //CALIBRATION_FIND_CORNERS_H
+#endif //LIBCBDETECT_GET_INIT_LOCATION_H

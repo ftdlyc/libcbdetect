@@ -67,8 +67,18 @@ void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat 
     }
 
     // count number of zero-crossings
+    int fisrt_cross_index = 0;
     for (int j = 0; j < n; ++j) {
-      if ((c[j] > 0) ^ (c[(j + 1) % n] > 0)) { ++num_crossings; }
+      if ((c[j] > 0) ^ (c[(j + 1) % n] > 0)) {
+        fisrt_cross_index = (j + 1) % n;
+        break;
+      }
+    }
+    for (int j = fisrt_cross_index, count = 0; j < n + fisrt_cross_index; ++j, ++count) {
+      if ((c[j % n] > 0) ^ (c[(j + 1) % n] > 0)) {
+        if (count >= n / 8) { ++num_crossings; }
+        count = 0;
+      }
     }
 
     int top_left_u = std::max(center_u - r, 0);

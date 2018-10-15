@@ -28,7 +28,8 @@
 namespace cbdetect {
 
 LIBCBDETECT_DLL_DECL void image_normalization_and_gradients(cv::Mat &img, cv::Mat &img_du, cv::Mat &img_dv,
-                                                            cv::Mat &img_angle, cv::Mat &img_weight);
+                                                            cv::Mat &img_angle, cv::Mat &img_weight,
+                                                            const Params &params);
 
 }
 

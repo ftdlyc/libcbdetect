@@ -1,3 +1,4 @@
+#include <vector>
 #include <opencv2/opencv.hpp>
 #include "libcbdetect/chessboards_from_corners.h"
 #include "libcbdetect/find_corners.h"
@@ -9,7 +10,7 @@ int main(int argc, char *argv[]) {
   std::vector<std::vector<std::vector<int>>> chessboards;
 
   cv::Mat img = cv::imread(argv[1], cv::IMREAD_COLOR);
-  cbdetect::find_corners(img, corners, {true, false, 0.01});
+  cbdetect::find_corners(img, corners);
   cbdetect::plot_corners(img, corners);
   cbdetect::chessboards_from_corners(corners, chessboards);
   cbdetect::plot_chessboards(img, corners, chessboards);

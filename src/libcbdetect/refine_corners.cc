@@ -29,7 +29,7 @@
 
 namespace cbdetect {
 
-std::vector<double[2]> edge_orientations(cv::Mat &img_angle, cv::Mat &img_weight) {
+std::vector<std::vector<double>> edge_orientations(cv::Mat &img_angle, cv::Mat &img_weight) {
   // number of bins (histogram parameter)
   int n = 32;
 
@@ -52,7 +52,7 @@ std::vector<double[2]> edge_orientations(cv::Mat &img_angle, cv::Mat &img_weight
   auto modes = find_modes_meanshift(angle_hist, 1.5);
 
   // if only one or no mode => return invalid corner
-  if (modes.size() <= 1) { return std::vector<double[2]>(); }
+  if (modes.size() <= 1) { return std::vector<std::vector<double>>(); }
 
   // compute orientation at modes
   // extract 2 strongest modes and sort by angle
@@ -64,10 +64,10 @@ std::vector<double[2]> edge_orientations(cv::Mat &img_angle, cv::Mat &img_weight
   double delta_angle = std::min(angle_2 - angle_1, angle_1 + M_PI - angle_2);
 
   // if angle too small => return invalid corner
-  if (delta_angle <= 0.3) { return std::vector<double[2]>(); }
+  if (delta_angle <= 0.3) { return std::vector<std::vector<double>>(); }
 
   // set statistics: orientations
-  std::vector<double[2]> v(2);
+  std::vector<std::vector<double>> v(2, std::vector<double>(2));
   v[0][0] = std::cos(angle_1);
   v[0][1] = std::sin(angle_1);
   v[1][0] = std::cos(angle_2);

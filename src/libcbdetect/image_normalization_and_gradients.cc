@@ -74,13 +74,14 @@ void box_filter(const cv::Mat &img, cv::Mat &blur_img, int kernel_size) {
 }
 
 void image_normalization_and_gradients(cv::Mat &img, cv::Mat &img_du, cv::Mat &img_dv,
-                                       cv::Mat &img_angle, cv::Mat &img_weight) {
+                                       cv::Mat &img_angle, cv::Mat &img_weight, const Params &params) {
   // normalize image
-  cv::Mat blur_img;
-// cv::boxFilter(img, blur_img, -1, cv::Size(201, 201), cv::Point(-1, -1), true, cv::BORDER_REFLECT_101);
-  box_filter(img, blur_img, 100);
-  img = img - blur_img;
-  img = 2.5 * (cv::max(cv::min(img + 0.2, 0.4), 0));
+  if (params.norm) {
+    cv::Mat blur_img;
+    box_filter(img, blur_img, params.norm_half_kernel_size);
+    img = img - blur_img;
+    img = 2.5 * (cv::max(cv::min(img + 0.2, 0.4), 0));
+  }
 
   // sobel masks
   cv::Mat_<double> du({3, 3}, {1, 0, -1, 2, 0, -2, 1, 0, -1});
