@@ -100,7 +100,7 @@ void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat 
     std::vector<double> angle_hist(n, 0);
     for (int j2 = top_left_v; j2 <= bottom_right_v; ++j2) {
       for (int i2 = top_left_u; i2 <= bottom_right_u; ++i2) {
-        int bin = static_cast<int>(std::floor(img_angle.at<double>(j2, i2) / (M_PI / n)));
+        int bin = static_cast<int>(std::floor(img_angle.at<double>(j2, i2) / (M_PI / n))) % n;
         angle_hist[bin] += img_weight_sub.at<double>(j2 - center_v + r, i2 - center_u + r);
       }
     }
