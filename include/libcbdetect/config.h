@@ -44,9 +44,13 @@
 namespace cbdetect {
 
 enum DetectMethod {
-  TemplateMatchFast = 0,
+  // origin method
+      TemplateMatchFast = 0,
   TemplateMatchSlow,
-  HessianResponse
+
+  // compute hessian of image, detect by a threshold
+  // form https://github.com/facebookincubator/deltille
+      HessianResponse
 };
 
 typedef struct Params {
