@@ -20,6 +20,7 @@ Libdetect is a fully automatic sub-pixel checkerboard / chessboard pattern detec
 ![image](https://github.com/ftdlyc/libcbdetect/blob/master/example_data/e2_result.png)  
     
 #### Reference Papers
-[1] Andreas Geiger and Frank Moosmann and Oemer Car and Bernhard Schuster, Automatic Calibration of Range and Camera Sensors using a single Shot, ICRA, 2012  
-[2] Miriam Schoenbein and Tobias Strauss and Andreas Geiger, Calibrating and Centering Quasi-Central Catadioptric Cameras, ICRA, 2014  
-[3] Ha, Hyowon and Perdoch, Michal and Alismail, Hatem and So Kweon, In and Sheikh, Yaser, Deltille Grids for Geometric Camera Calibration, ICCV 2017  
+[1] Andreas Geiger and Frank Moosmann and Oemer Car and Bernhard Schuster, "Automatic Calibration of Range and Camera Sensors using a single Shot", ICRA, 2012  
+[2] Miriam Schoenbein and Tobias Strauss and Andreas Geiger, "Calibrating and Centering Quasi-Central Catadioptric Cameras", ICRA, 2014  
+[3] S.Placht, P.Fürsattel, E.A.Mengue, H.Hofmann, C.Schaller, M.Balda, and E.Angelopoulou, "ROCHADE: Robust Checkerboard Advanced Detection for Camera Calibration," ECCV, 2014  
+[4] Ha, Hyowon and Perdoch, Michal and Alismail, Hatem and So Kweon, In and Sheikh, Yaser, "Deltille Grids for Geometric Camera Calibration", ICCV 2017  

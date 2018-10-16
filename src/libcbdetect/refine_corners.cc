@@ -25,6 +25,7 @@
 #include "config.h"
 #include "find_corners.h"
 #include "find_modes_meanshift.h"
+#include "get_image_patch.h"
 #include "weight_mask.h"
 
 namespace cbdetect {
@@ -75,26 +76,6 @@ std::vector<std::vector<double>> edge_orientations(cv::Mat &img_angle, cv::Mat &
   return v;
 }
 
-void get_rect_subpixel(const cv::Mat &img, double u, double v, int r, cv::Mat &img_sub) {
-  int iu = u;
-  int iv = v;
-  double du = u - iu;
-  double dv = v - iv;
-  double a00 = 1 - du - dv - du * dv;
-  double a01 = du - du * dv;
-  double a10 = dv - du * dv;
-  double a11 = du * dv;
-
-  img_sub.create(2 * r + 1, 2 * r + 1, CV_64F);
-  for (int j = -r; j <= r; ++j) {
-    for (int i = -r; i <= r; ++i) {
-      img_sub.at<double>(j + r, i + r) =
-          a00 * img.at<double>(iv + j, iu + i) + a01 * img.at<double>(iv + j, iu + i + 1) +
-              a10 * img.at<double>(iv + j + 1, iu + i) + a11 * img.at<double>(iv + j + 1, iu + i + 1);
-    }
-  }
-}
-
 void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat &img_angle, const cv::Mat &img_weight,
                     const std::vector<int> radius, Corner &corners) {
   // maximum iterations and precision
@@ -116,8 +97,8 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
     // estimate edge orientations (continue, if too close to border)
     if (u_init - r < 0 || u_init + r >= width - 1 || v_init - r < 0 || v_init + r >= height - 1) { continue; }
     cv::Mat img_angle_sub, img_weight_sub;
-    get_rect_subpixel(img_angle, u_init, v_init, r, img_angle_sub);
-    get_rect_subpixel(img_weight, u_init, v_init, r, img_weight_sub);
+    get_image_patch(img_angle, u_init, v_init, r, img_angle_sub);
+    get_image_patch(img_weight, u_init, v_init, r, img_weight_sub);
     img_weight_sub = img_weight_sub.mul(mask[r]);
     auto v = edge_orientations(img_angle_sub, img_weight_sub);
 
@@ -178,8 +159,8 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
       // get subpixel gradiant
       cv::Mat img_du_sub, img_dv_sub;
       if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) { break; }
-      get_rect_subpixel(img_du, u_cur, v_cur, r, img_du_sub);
-      get_rect_subpixel(img_dv, u_cur, v_cur, r, img_dv_sub);
+      get_image_patch(img_du, u_cur, v_cur, r, img_du_sub);
+      get_image_patch(img_dv, u_cur, v_cur, r, img_dv_sub);
 
       for (int j2 = 0; j2 < 2 * r + 1; ++j2) {
         for (int i2 = 0; i2 < 2 * r + 1; ++i2) {

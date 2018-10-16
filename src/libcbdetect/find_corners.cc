@@ -29,6 +29,7 @@
 #include "get_init_location.h"
 #include "image_normalization_and_gradients.h"
 #include "non_maximum_suppression.h"
+#include "polynomial_fit.h"
 #include "refine_corners.h"
 #include "score_corners.h"
 
@@ -57,8 +58,12 @@ void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &pa
     printf("Filtering corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
   }
 
-  // subpixel refinement
+  // refinement
   refine_corners(img_du, img_dv, img_angle, img_weight, params.radius, corners);
+  // polynomial fit
+  if (params.polynomial_fit) {
+    polynomial_fit(img_norm, corners, params);
+  }
   if (params.show_processing) {
     printf("Refining corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
   }

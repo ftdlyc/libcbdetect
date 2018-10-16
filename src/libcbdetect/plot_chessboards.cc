@@ -80,8 +80,10 @@ void plot_chessboards(const cv::Mat &img, const Corner &corners,
       }
     }
     mean /= (double) (chessboard.size() * chessboard[0].size());
+    mean.x -= 10;
+    mean.y += 10;
     cv::putText(img_show, std::to_string(n), mean,
-                cv::FONT_HERSHEY_SIMPLEX, 1.3, cv::Scalar(0, 0, 255), 2);
+                cv::FONT_HERSHEY_SIMPLEX, 1.3, cv::Scalar(196, 196, 0), 2);
   }
 
   cv::imshow("chessboards_img", img_show);

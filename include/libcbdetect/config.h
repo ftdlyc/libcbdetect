@@ -44,9 +44,10 @@
 namespace cbdetect {
 
 enum DetectMethod {
-  // origin method
+  // origin method fast mode
       TemplateMatchFast = 0,
-  TemplateMatchSlow,
+  // origin method slow mode
+      TemplateMatchSlow,
 
   // compute hessian of image, detect by a threshold
   // form https://github.com/facebookincubator/deltille
@@ -56,15 +57,20 @@ enum DetectMethod {
 typedef struct Params {
   bool show_processing;
   bool norm;
+  bool polynomial_fit;
   int norm_half_kernel_size;
+  int polynomial_fit_half_kernel_size;
   double hessian_thr;
   double score_thr;
   DetectMethod detct_mode;
   std::vector<int> radius;
+
   Params() {
     show_processing = false;
     norm = false;
+      polynomial_fit = true;
     norm_half_kernel_size = 31;
+      polynomial_fit_half_kernel_size = 3;
     hessian_thr = 0.01;
     score_thr = 0.01;
     detct_mode = TemplateMatchFast;
