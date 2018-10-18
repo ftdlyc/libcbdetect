@@ -42,6 +42,7 @@
 #include <opencv2/opencv.hpp>
 #include "config.h"
 #include "create_correlation_patch.h"
+#include "get_image_patch.h"
 #include "non_maximum_suppression.h"
 
 namespace cbdetect {
@@ -101,7 +102,8 @@ void hessian_response(const cv::Mat &img_in, cv::Mat &img_out) {
   }
 }
 
-void get_init_location(const cv::Mat &img, Corner &corners, const Params &params) {
+void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat &img_dv,
+                       Corner &corners, const Params &params) {
   corners.p.clear();
   corners.r.clear();
   corners.v1.clear();
@@ -179,6 +181,49 @@ void get_init_location(const cv::Mat &img, Corner &corners, const Params &params
       break;
     }
     default:break;
+  }
+
+  // location refinement
+  int width = img.cols, height = img.rows;
+  for (int i = 0; i < corners.p.size(); ++i) {
+    double u = corners.p[i].x;
+    double v = corners.p[i].y;
+    int r = corners.r[i];
+
+    cv::Mat G = cv::Mat::zeros(2, 2, CV_64F);
+    cv::Mat b = cv::Mat::zeros(2, 1, CV_64F);
+
+    // get subpixel gradiant
+    cv::Mat img_du_sub, img_dv_sub;
+    if (u - r < 0 || u + r >= width - 1 || v - r < 0 || v + r >= height - 1) { break; }
+    get_image_patch(img_du, u, v, r, img_du_sub);
+    get_image_patch(img_dv, u, v, r, img_dv_sub);
+
+    for (int j2 = 0; j2 < 2 * r + 1; ++j2) {
+      for (int i2 = 0; i2 < 2 * r + 1; ++i2) {
+        // pixel orientation vector
+        double o_du = img_du_sub.at<double>(j2, i2);
+        double o_dv = img_dv_sub.at<double>(j2, i2);
+        double o_norm = std::sqrt(o_du * o_du + o_dv * o_dv);
+        if (o_norm < 0.1) { continue; }
+
+        // do not consider center pixel
+        if (i2 == r && j2 == r) { continue; }
+        G.at<double>(0, 0) += o_du * o_du;
+        G.at<double>(0, 1) += o_du * o_dv;
+        G.at<double>(1, 0) += o_du * o_dv;
+        G.at<double>(1, 1) += o_dv * o_dv;
+        b.at<double>(0, 0) += o_du * o_du * (i2 - r + u) + o_du * o_dv * (j2 - r + v);
+        b.at<double>(1, 0) += o_du * o_dv * (i2 - r + u) + o_dv * o_dv * (j2 - r + v);
+      }
+    }
+
+    cv::Mat new_pos = G.inv() * b;
+    if (std::abs(new_pos.at<double>(0, 0) - corners.p[i].x) +
+        std::abs(new_pos.at<double>(1, 0) - corners.p[i].y) < corners.r[i] * 2) {
+      corners.p[i].x = new_pos.at<double>(0, 0);
+      corners.p[i].y = new_pos.at<double>(1, 0);
+    }
   }
 }
 

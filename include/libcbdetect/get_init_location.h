@@ -29,7 +29,8 @@
 
 namespace cbdetect {
 
-void get_init_location(const cv::Mat &img, Corner &corners, const Params &parmas);
+void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat &img_dv,
+                       Corner &corners, const Params &parmas);
 
 }
 

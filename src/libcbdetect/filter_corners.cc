@@ -34,26 +34,40 @@
 namespace cbdetect {
 
 void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat &img_weight,
-                    const std::vector<int> &radius, Corner &corners) {
-  int n = 32, width = img.cols, height = img.rows;
+                    Corner &corners, const Params &params) {
+  int n_cicle, n_bin, crossing_thr, need_crossing, need_mode;
+  if (params.corner_type == SaddlePoint) {
+    n_cicle = n_bin = 32;
+    crossing_thr = 3;
+    need_crossing = 4;
+    need_mode = 2;
+  } else if (params.corner_type == MonkeySaddlePoint) {
+    n_cicle = 48;
+    n_bin = 32;
+    crossing_thr = 3;
+    need_crossing = 6;
+    need_mode = 3;
+  }
+  int width = img.cols, height = img.rows;
   std::vector<cv::Point2d> corners_out_p;
   std::vector<int> corners_out_r;
-  std::vector<double> cos_v(n), sin_v(n);
-  for (int i = 0; i < n; ++i) {
-    cos_v[i] = std::cos(i * 2.0 * M_PI / (n - 1));
-    sin_v[i] = std::sin(i * 2.0 * M_PI / (n - 1));
+  std::vector<double> cos_v(n_cicle), sin_v(n_cicle);
+  for (int i = 0; i < n_cicle; ++i) {
+    cos_v[i] = std::cos(i * 2.0 * M_PI / (n_cicle - 1));
+    sin_v[i] = std::sin(i * 2.0 * M_PI / (n_cicle - 1));
   }
-  auto mask = weight_mask(radius);
+  auto mask = weight_mask(params.radius);
 
   for (int i = 0; i < corners.p.size(); ++i) {
     int num_crossings = 0, num_modes = 0;
     int center_u = std::round(corners.p[i].x);
     int center_v = std::round(corners.p[i].y);
     int r = corners.r[i];
+    if (center_u - r < 0 || center_u + r >= width - 1 || center_v - r < 0 || center_v + r >= height - 1) { continue; }
 
     // extract circle locations and its value
-    std::vector<double> c(n);
-    for (int j = 0; j < n; ++j) {
+    std::vector<double> c(n_cicle);
+    for (int j = 0; j < n_cicle; ++j) {
       int circle_u = static_cast<int>(std::round(center_u + 0.75 * r * cos_v[j]));
       int circle_v = static_cast<int>(std::round(center_v + 0.75 * r * sin_v[j]));
       circle_u = std::min(std::max(circle_u, 0), width - 1);
@@ -62,22 +76,22 @@ void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat 
     }
     auto minmax = std::minmax_element(c.begin(), c.end());
     double min_c = *minmax.first, max_c = *minmax.second;
-    for (int j = 0; j < n; ++j) {
+    for (int j = 0; j < n_cicle; ++j) {
       c[j] = c[j] - min_c - (max_c - min_c) / 2;
     }
 
     // count number of zero-crossings
     int fisrt_cross_index = 0;
-    for (int j = 0; j < n; ++j) {
-      if ((c[j] > 0) ^ (c[(j + 1) % n] > 0)) {
-        fisrt_cross_index = (j + 1) % n;
+    for (int j = 0; j < n_cicle; ++j) {
+      if ((c[j] > 0) ^ (c[(j + 1) % n_cicle] > 0)) {
+        fisrt_cross_index = (j + 1) % n_cicle;
         break;
       }
     }
-    for (int j = fisrt_cross_index, count = 0; j < n + fisrt_cross_index; ++j, ++count) {
-      if ((c[j % n] > 0) ^ (c[(j + 1) % n] > 0)) {
-        if (count >= n / 8) { ++num_crossings; }
-        count = 0;
+    for (int j = fisrt_cross_index, count = 1; j < n_cicle + fisrt_cross_index; ++j, ++count) {
+      if ((c[j % n_cicle] > 0) ^ (c[(j + 1) % n_cicle] > 0)) {
+        if (count >= crossing_thr) { ++num_crossings; }
+        count = 1;
       }
     }
 
@@ -97,10 +111,10 @@ void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat 
     });
 
     // create histogram
-    std::vector<double> angle_hist(n, 0);
+    std::vector<double> angle_hist(n_bin, 0);
     for (int j2 = top_left_v; j2 <= bottom_right_v; ++j2) {
       for (int i2 = top_left_u; i2 <= bottom_right_u; ++i2) {
-        int bin = static_cast<int>(std::floor(img_angle.at<double>(j2, i2) / (M_PI / n))) % n;
+        int bin = static_cast<int>(std::floor(img_angle.at<double>(j2, i2) / (M_PI / n_bin))) % n_bin;
         angle_hist[bin] += img_weight_sub.at<double>(j2 - center_v + r, i2 - center_u + r);
       }
     }
@@ -110,8 +124,8 @@ void filter_corners(const cv::Mat &img, const cv::Mat &img_angle, const cv::Mat 
       if (2 * j.second > modes[0].second) { ++num_modes; }
     }
 
-    if (num_crossings == 4 && num_modes == 2) {
-      corners_out_p.emplace_back(cv::Point2d(center_u, center_v));
+    if (num_crossings == need_crossing && num_modes == need_mode) {
+      corners_out_p.emplace_back(cv::Point2d(corners.p[i].x, corners.p[i].y));
       corners_out_r.emplace_back(r);
     }
   }

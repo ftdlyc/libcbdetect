@@ -76,31 +76,90 @@ std::vector<std::vector<double>> edge_orientations(cv::Mat &img_angle, cv::Mat &
   return v;
 }
 
+std::vector<std::vector<double>> edge_3_orientations(cv::Mat &img_angle, cv::Mat &img_weight) {
+  // number of bins (histogram parameter)
+  int n = 32;
+
+  // convert angles from normals to directions
+  img_angle.forEach<double>([](double &val, const int *pos) -> void {
+    val += M_PI / 2;
+    val = val >= M_PI ? val - M_PI : val;
+  });
+
+  // create histogram
+  std::vector<double> angle_hist(n, 0);
+  for (int i = 0; i < img_angle.cols; ++i) {
+    for (int j = 0; j < img_angle.rows; ++j) {
+      int bin = static_cast<int>(std::floor(img_angle.at<double>(j, i) / (M_PI / n)));
+      angle_hist[bin] += img_weight.at<double>(j, i);
+    }
+  }
+
+  // find modes of smoothed histogram
+  auto modes = find_modes_meanshift(angle_hist, 1.5);
+
+  // if only one or no mode => return invalid corner
+  if (modes.size() <= 2) { return std::vector<std::vector<double>>(); }
+
+  // compute orientation at modes
+  // extract 2 strongest modes and sort by angle
+  double angle_1 = modes[0].first * M_PI / n + M_PI / n / 2;
+  double angle_2 = modes[1].first * M_PI / n + M_PI / n / 2;
+  double angle_3 = modes[2].first * M_PI / n + M_PI / n / 2;
+  if (angle_1 > angle_2) { std::swap(angle_1, angle_2); }
+  if (angle_1 > angle_3) { std::swap(angle_1, angle_3); }
+  if (angle_2 > angle_3) { std::swap(angle_2, angle_3); }
+
+  // compute angle between modes
+  double delta_angle_1 = std::min(angle_2 - angle_1, angle_1 + M_PI - angle_2);
+  double delta_angle_2 = std::min(angle_3 - angle_2, angle_2 + M_PI - angle_3);
+  double delta_angle_3 = std::min(angle_3 - angle_1, angle_1 + M_PI - angle_3);
+
+  // if angle too small => return invalid corner
+  if (delta_angle_1 <= 0.2 || delta_angle_2 <= 0.2 || delta_angle_3 <= 0.2) {
+    return std::vector<std::vector<double>>();
+  }
+
+  // set statistics: orientations
+  std::vector<std::vector<double>> v(3, std::vector<double>(2));
+  v[0][0] = std::cos(angle_1);
+  v[0][1] = std::sin(angle_1);
+  v[1][0] = std::cos(angle_2);
+  v[1][1] = std::sin(angle_2);
+  v[2][0] = std::cos(angle_3);
+  v[2][1] = std::sin(angle_3);
+  return v;
+}
+
 void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat &img_angle, const cv::Mat &img_weight,
-                    const std::vector<int> radius, Corner &corners) {
+                    Corner &corners, const Params &params) {
   // maximum iterations and precision
   int max_iteration = 5;
   double eps = 0.01;
 
   int width = img_du.cols, height = img_du.rows;
-  std::vector<cv::Point2d> corners_out_p, corners_out_v1, corners_out_v2;
+  std::vector<cv::Point2d> corners_out_p, corners_out_v1, corners_out_v2, corners_out_v3;
   std::vector<int> corners_out_r;
-  auto mask = weight_mask(radius);
+  auto mask = weight_mask(params.radius);
+  bool is_monkey_saddle = params.corner_type == MonkeySaddlePoint;
 
   // for all corners do
   for (int i = 0; i < corners.p.size(); ++i) {
     // extract current corner location
+    int ui = std::round(corners.p[i].x);
+    int vi = std::round(corners.p[i].y);
     double u_init = corners.p[i].x;
     double v_init = corners.p[i].y;
     int r = corners.r[i];
 
     // estimate edge orientations (continue, if too close to border)
-    if (u_init - r < 0 || u_init + r >= width - 1 || v_init - r < 0 || v_init + r >= height - 1) { continue; }
+    if (ui - r < 0 || ui + r >= width || vi - r < 0 || vi + r >= height) { continue; }
     cv::Mat img_angle_sub, img_weight_sub;
-    get_image_patch(img_angle, u_init, v_init, r, img_angle_sub);
-    get_image_patch(img_weight, u_init, v_init, r, img_weight_sub);
+    get_image_patch(img_angle, ui, vi, r, img_angle_sub);
+    get_image_patch(img_weight, ui, vi, r, img_weight_sub);
     img_weight_sub = img_weight_sub.mul(mask[r]);
-    auto v = edge_orientations(img_angle_sub, img_weight_sub);
+    auto v = is_monkey_saddle ? edge_3_orientations(img_angle_sub, img_weight_sub) :
+             edge_orientations(img_angle_sub, img_weight_sub);
 
     // continue, if invalid edge orientations
     if (v.empty()) { continue; }
@@ -108,8 +167,9 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
     //corner orientation refinement
     cv::Mat A1 = cv::Mat::zeros(2, 2, CV_64F);
     cv::Mat A2 = cv::Mat::zeros(2, 2, CV_64F);
-    for (int j2 = v_init - r; j2 <= v_init + r; ++j2) {
-      for (int i2 = u_init - r; i2 <= u_init + r; ++i2) {
+    cv::Mat A3 = cv::Mat::zeros(2, 2, CV_64F);
+    for (int j2 = vi - r; j2 <= vi + r; ++j2) {
+      for (int i2 = ui - r; i2 <= ui + r; ++i2) {
         //pixel orientation vector
         double o_du = img_du.at<double>(j2, i2);
         double o_dv = img_dv.at<double>(j2, i2);
@@ -133,6 +193,14 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
           A2.at<double>(1, 0) += o_du * o_dv;
           A2.at<double>(1, 1) += o_dv * o_dv;
         }
+
+        // robust refinement of orientation 3
+        if (is_monkey_saddle && std::abs(o_du_norm * v[2][0] + o_dv_norm * v[2][1]) < 0.25) {
+          A3.at<double>(0, 0) += o_du * o_du;
+          A3.at<double>(0, 1) += o_du * o_dv;
+          A3.at<double>(1, 0) += o_du * o_dv;
+          A3.at<double>(1, 1) += o_dv * o_dv;
+        }
       }
     }
 
@@ -144,10 +212,23 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
     cv::eigen(A2, eig_tmp1, eig_tmp2);
     v[1][0] = eig_tmp2.at<double>(1, 0);
     v[1][1] = eig_tmp2.at<double>(1, 1);
+    if (is_monkey_saddle) {
+      cv::eigen(A3, eig_tmp1, eig_tmp2);
+      v[2][0] = eig_tmp2.at<double>(1, 0);
+      v[2][1] = eig_tmp2.at<double>(1, 1);
+    }
 
-    if (v[0][0] * v[1][1] - v[0][1] * v[1][0] < 0) {
-      std::swap(v[0][0], v[1][0]);
-      std::swap(v[0][1], v[1][1]);
+    std::sort(v.begin(), v.end(), [](const auto &a1, const auto &a2) {
+      return a1[0] * a2[1] - a1[1] * a2[0] > 0;
+    });
+
+    if (params.polynomial_fit) {
+      corners_out_p.emplace_back(cv::Point2d(u_init, v_init));
+      corners_out_r.emplace_back(r);
+      corners_out_v1.emplace_back(cv::Point2d(v[0][0], v[0][1]));
+      corners_out_v2.emplace_back(cv::Point2d(v[1][0], v[1][1]));
+      if (is_monkey_saddle) { corners_out_v3.emplace_back(cv::Point2d(v[2][0], v[2][1])); }
+      continue;
     }
 
     // corner location refinement
@@ -158,7 +239,7 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
 
       // get subpixel gradiant
       cv::Mat img_du_sub, img_dv_sub;
-      if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) { break; }
+      if (u_cur - r < 0 || u_cur + r >= width || v_cur - r < 0 || v_cur + r >= height) { break; }
       get_image_patch(img_du, u_cur, v_cur, r, img_du_sub);
       get_image_patch(img_dv, u_cur, v_cur, r, img_dv_sub);
 
@@ -194,6 +275,20 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
             b.at<double>(0, 0) += o_du * o_du * (i2 - r + u_cur) + o_du * o_dv * (j2 - r + v_cur);
             b.at<double>(1, 0) += o_du * o_dv * (i2 - r + u_cur) + o_dv * o_dv * (j2 - r + v_cur);
           }
+
+          if (is_monkey_saddle) {
+            w_u = i2 - r - ((i2 - r) * v[2][0] + (j2 - r) * v[2][1]) * v[2][0];
+            v_u = j2 - r - ((i2 - r) * v[2][0] + (j2 - r) * v[2][1]) * v[2][1];
+            double d3 = std::sqrt(w_u * w_u + v_u * v_u);
+            if (d3 < 3 && std::abs(o_du_norm * v[2][0] + o_dv_norm * v[2][1]) < 0.25) {
+              G.at<double>(0, 0) += o_du * o_du;
+              G.at<double>(0, 1) += o_du * o_dv;
+              G.at<double>(1, 0) += o_du * o_dv;
+              G.at<double>(1, 1) += o_dv * o_dv;
+              b.at<double>(0, 0) += o_du * o_du * (i2 - r + u_cur) + o_du * o_dv * (j2 - r + v_cur);
+              b.at<double>(1, 0) += o_du * o_dv * (i2 - r + u_cur) + o_dv * o_dv * (j2 - r + v_cur);
+            }
+          }
         }
       }
 
@@ -218,12 +313,14 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
       corners_out_r.emplace_back(r);
       corners_out_v1.emplace_back(cv::Point2d(v[0][0], v[0][1]));
       corners_out_v2.emplace_back(cv::Point2d(v[1][0], v[1][1]));
+      if (is_monkey_saddle) { corners_out_v3.emplace_back(cv::Point2d(v[2][0], v[2][1])); }
     }
   }
   corners.p = std::move(corners_out_p);
   corners.r = std::move(corners_out_r);
   corners.v1 = std::move(corners_out_v1);
   corners.v2 = std::move(corners_out_v2);
+  if (is_monkey_saddle) { corners.v3 = std::move(corners_out_v3); }
 }
 
 }

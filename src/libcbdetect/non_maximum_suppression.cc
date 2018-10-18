@@ -27,8 +27,8 @@
 namespace cbdetect {
 
 void non_maximum_suppression(const cv::Mat &img, int n, double tau, int margin, Corner &corners) {
-  for (int i = n + margin; i < img.cols - n - margin; i += n + 1) {
-    for (int j = n + margin; j < img.rows - n - margin; j += n + 1) {
+  for (int j = n + margin; j < img.rows - n - margin; j += n + 1) {
+    for (int i = n + margin; i < img.cols - n - margin; i += n + 1) {
       int maxi = i, maxj = j;
       double maxval = img.at<double>(j, i);
 
@@ -61,7 +61,7 @@ void non_maximum_suppression(const cv::Mat &img, int n, double tau, int margin, 
   }
 }
 
-void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size) {
+void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size, const Params &params) {
   cv::Mat img_score = cv::Mat::zeros(img_size, CV_64F);
   cv::Mat used = cv::Mat::ones(img_size, CV_32S) * -1;
   for (int i = 0; i < corners.p.size(); ++i) {
@@ -72,9 +72,10 @@ void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size) {
       used.at<int>(v, u) = i;
     }
   }
-  std::vector<cv::Point2d> corners_out_p, corners_out_v1, corners_out_v2;
+  std::vector<cv::Point2d> corners_out_p, corners_out_v1, corners_out_v2, corners_out_v3;
   std::vector<double> corners_out_score;
   std::vector<int> corners_out_r;
+  bool is_monkey_saddle = params.corner_type == MonkeySaddlePoint;
   for (int i = 0; i < corners.p.size(); ++i) {
     int u = std::round(corners.p[i].x);
     int v = std::round(corners.p[i].y);
@@ -91,6 +92,7 @@ void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size) {
     corners_out_r.emplace_back(corners.r[i]);
     corners_out_v1.emplace_back(corners.v1[i]);
     corners_out_v2.emplace_back(corners.v2[i]);
+    if (is_monkey_saddle) { corners_out_v3.emplace_back(corners.v3[i]); }
     corners_out_score.emplace_back(corners.score[i]);
     GOTO_FAILED:;
   }
@@ -98,6 +100,7 @@ void non_maximum_suppression_sparse(Corner &corners, int n, cv::Size img_size) {
   corners.r = std::move(corners_out_r);
   corners.v1 = std::move(corners_out_v1);
   corners.v2 = std::move(corners_out_v2);
+  if (is_monkey_saddle) { corners.v3 = std::move(corners_out_v3); }
   corners.score = std::move(corners_out_score);
 }
 
