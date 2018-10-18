@@ -25,7 +25,7 @@
 
 namespace cbdetect {
 
-double chessboard_energy(const Corner &corners, const std::vector<std::vector<int>> chessboard) {
+double chessboard_energy(const Corner &corners, const std::vector<std::vector<int>> &chessboard) {
   // energy: number of corners
   double E_corners = -1.0 * chessboard.size() * chessboard[0].size();
 

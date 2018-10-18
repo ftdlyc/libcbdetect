@@ -19,13 +19,12 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "chessboard_energy.h"
+#include "chessboards_from_corners.h"
 #include <algorithm>
 #include <vector>
-#include "chessboards_from_corners.h"
 #include "config.h"
+#include "chessboard_energy.h"
 #include "init_chessboard.h"
-#include "find_corners.h"
 #include "grow_chessboard.h"
 
 namespace cbdetect {

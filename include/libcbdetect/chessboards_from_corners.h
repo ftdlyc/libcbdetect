@@ -24,7 +24,6 @@
 
 #include <vector>
 #include "config.h"
-#include "find_corners.h"
 
 namespace cbdetect {
 

@@ -139,7 +139,6 @@ void init_chessboard(const Corner &corners, int idx, std::vector<std::vector<int
   }
   chessboard[2][2] = tmp1;
   min_dist[7] = min_dist_tmp1;
-  used[tmp1] = 1;
 
   // initialization must be homogenously distributed
   for (int i = 0; i < 8; ++i) {

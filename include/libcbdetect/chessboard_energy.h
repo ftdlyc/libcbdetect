@@ -25,11 +25,10 @@
 
 #include <vector>
 #include "config.h"
-#include "find_corners.h"
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL double chessboard_energy(const Corner &corners, const std::vector<std::vector<int>> chessboard);
+LIBCBDETECT_DLL_DECL double chessboard_energy(const Corner &corners, const std::vector<std::vector<int>> &chessboard);
 
 }
 

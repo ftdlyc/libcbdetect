@@ -4,4 +4,8 @@
 
 namespace cbdetect {
 
+void grow_deltille(const Corner &corners, std::vector<std::vector<int>> &deltille, int border_type) {
+
+}
+
 }

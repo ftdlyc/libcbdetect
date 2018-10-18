@@ -26,7 +26,6 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include "config.h"
-#include "find_corners.h"
 
 namespace cbdetect {
 
