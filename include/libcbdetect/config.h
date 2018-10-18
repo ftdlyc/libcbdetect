@@ -74,15 +74,15 @@ typedef struct Params {
 
   Params() {
     show_processing = false;
-      show_debug_image = false;
+    show_debug_image = false;
     norm = false;
-      polynomial_fit = true;
+    polynomial_fit = true;
     norm_half_kernel_size = 31;
-      polynomial_fit_half_kernel_size = 3;
+    polynomial_fit_half_kernel_size = 3;
     hessian_thr = 0.01;
     score_thr = 0.01;
     detct_mode = TemplateMatchFast;
-      corner_type = SaddlePoint;
+    corner_type = SaddlePoint;
     radius = {4, 6, 10};
   }
 } Params;
