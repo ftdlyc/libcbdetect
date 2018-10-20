@@ -64,8 +64,6 @@ void deltilles_from_corners(const cv::Mat &img, const Corner &corners,
   auto time = std::chrono::system_clock::now().time_since_epoch();
   e.seed(time.count());
   int start = e() % corners.p.size();
-//  std::cout << start << "\n";
-  start = 35;
 
   // for all seed corners do
   int n = 0;
