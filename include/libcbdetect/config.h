@@ -72,19 +72,18 @@ typedef struct Params {
   CornerType corner_type;
   std::vector<int> radius;
 
-  Params() {
-    show_processing = false;
-    show_debug_image = false;
-    norm = false;
-    polynomial_fit = true;
-    norm_half_kernel_size = 31;
-    polynomial_fit_half_kernel_size = 3;
-    hessian_thr = 0.01;
-    score_thr = 0.01;
-    detct_mode = TemplateMatchFast;
-    corner_type = SaddlePoint;
-    radius = {4, 6, 10};
-  }
+  Params() :
+      show_processing(false),
+      show_debug_image(false),
+      norm(false),
+      polynomial_fit(true),
+      norm_half_kernel_size(31),
+      polynomial_fit_half_kernel_size(3),
+      hessian_thr(0.01),
+      score_thr(0.01),
+      detct_mode(TemplateMatchFast),
+      corner_type(SaddlePoint),
+      radius({4, 6, 10}) {}
 } Params;
 
 typedef struct Corner {
@@ -95,6 +94,14 @@ typedef struct Corner {
   std::vector<cv::Point2d> v3;
   std::vector<double> score;
 } Corner;
+
+typedef struct Deltille {
+  std::vector<std::vector<int>> idx;
+  std::vector<std::vector<std::vector<double>>> energy;
+  int num;
+
+  Deltille() : num(0) {}
+} Deltille;
 
 }
 

@@ -27,6 +27,16 @@
 
 namespace cbdetect {
 
+LIBCBDETECT_DLL_DECL std::vector<cv::Point2d> predict_corners(const Corner &corners,
+                                                              const std::vector<int> &p1,
+                                                              const std::vector<int> &p2,
+                                                              const std::vector<int> &p3);
+
+LIBCBDETECT_DLL_DECL std::vector<int> assign_closest_corners(const Corner &corners,
+                                                             std::vector<int> &used,
+                                                             const std::vector<cv::Point2d> &pred,
+                                                             const std::vector<int> &last);
+
 LIBCBDETECT_DLL_DECL void grow_chessboard(const Corner &corners, std::vector<std::vector<int>> &chessboard,
                                           int border_type);
 

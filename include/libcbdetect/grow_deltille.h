@@ -8,8 +8,8 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void grow_deltille(const Corner &corners, std::vector<std::vector<int>> &deltille,
-                                        int border_type);
+LIBCBDETECT_DLL_DECL bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &deltille,
+                                        std::vector<cv::Point2i> &proposal, int board_type);
 
 }
 

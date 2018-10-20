@@ -7,8 +7,8 @@
 
 namespace cbdetect {
 
-void plot_chessboards(const cv::Mat &img, const Corner &corners,
-                      const std::vector<std::vector<std::vector<int>>> &deltilles) {
+void plot_deltilles(const cv::Mat &img, const Corner &corners,
+                    const std::vector<std::vector<std::vector<int>>> &deltilles) {
 
 }
 

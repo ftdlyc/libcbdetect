@@ -8,7 +8,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL double deltille_energy(const Corner &corners, const std::vector<std::vector<int>> &deltille);
+LIBCBDETECT_DLL_DECL cv::Point3i deltille_energy(const Corner &corners, Deltille &deltille);
 
 }
 

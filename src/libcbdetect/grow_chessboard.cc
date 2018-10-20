@@ -72,7 +72,7 @@ std::vector<int> assign_closest_corners(const Corner &corners,
   if (n_unused < pred.size()) { return idx; }
 
   // build distance matrix
-  std::vector<std::vector<double>> D(pred.size(), std::vector<double>(corners.p.size(), 1e10));
+  std::vector<std::vector<double>> D(pred.size(), std::vector<double>(corners.p.size(), DBL_MAX));
   for (int i = 0; i < pred.size(); ++i) {
     cv::Point2d w = pred[i] - corners.p[last[i]];
     for (int j = 0; j < corners.p.size(); ++j) {
@@ -88,7 +88,7 @@ std::vector<int> assign_closest_corners(const Corner &corners,
 
   // search for closest corners
   for (int i = 0; i < pred.size(); ++i) {
-    double min_D = 1e10;
+    double min_D = DBL_MAX;
     int min_row = 0;
     int min_col = 0;
     for (int j = 0; j < pred.size(); ++j) {
@@ -99,9 +99,9 @@ std::vector<int> assign_closest_corners(const Corner &corners,
         min_col = j;
       }
     }
-    for (auto &j : D[min_col]) { j = 1e10; }
+    for (auto &j : D[min_col]) { j = DBL_MAX; }
     for (int j = 0; j < pred.size(); ++j) {
-      D[j][min_row] = 1e10;
+      D[j][min_row] = DBL_MAX;
     }
     idx[min_col] = min_row;
     used[min_row] = 1;

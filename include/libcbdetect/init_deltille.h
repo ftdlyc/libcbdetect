@@ -8,7 +8,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void init_deltille(const Corner &corners, int idx, std::vector<std::vector<int>> &deltille);
+LIBCBDETECT_DLL_DECL bool init_deltille(const Corner &corners, int idx, Deltille &deltille);
 
 }
 

@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <opencv2/opencv.hpp>
 #include "config.h"
-#include "find_corners.h"
 
 namespace cbdetect {
 
@@ -58,7 +57,7 @@ void init_chessboard(const Corner &corners, int idx, std::vector<std::vector<int
 
   // extract feature index and orientation (central element)
   const cv::Point2d &v1 = corners.v1[idx];
-  const cv::Point2d &v2 = corners.v2[idx];
+  const cv::Point2d &v2 = corners.v3.empty() ? corners.v2[idx] : corners.v3[idx];
   chessboard[1][1] = idx;
   std::vector<int> used(corners.p.size(), 0);
   used[idx] = 1;

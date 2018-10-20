@@ -9,7 +9,7 @@
 namespace cbdetect {
 
 LIBCBDETECT_DLL_DECL void deltilles_from_corners(const Corner &corners,
-                                                 std::vector<std::vector<std::vector<int>>> &deltilles);
+                                                 std::vector<Deltille> &deltilles);
 
 }
 

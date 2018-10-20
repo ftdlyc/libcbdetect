@@ -53,7 +53,7 @@ void plot_corners(const cv::Mat &img, const Corner &corners) {
       cv::line(img_show, corners.p[i], corners.p[i] + 20 * corners.v3[i], cv::Scalar(0, 0, 255), 2);
     }
     cv::circle(img_show, corners.p[i], 3, cv::Scalar(0, 0, 255), -1);
-    cv::putText(img_show, std::to_string(i), cv::Point2i(corners.p[i].x + 3, corners.p[i].y + 3),
+    cv::putText(img_show, std::to_string(i), cv::Point2i(corners.p[i].x - 12, corners.p[i].y - 6),
                 cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255), 1);
   }
   cv::imshow("corners_img", img_show);

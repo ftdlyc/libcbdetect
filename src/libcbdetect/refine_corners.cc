@@ -221,6 +221,11 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
     std::sort(v.begin(), v.end(), [](const auto &a1, const auto &a2) {
       return a1[0] * a2[1] - a1[1] * a2[0] > 0;
     });
+    v[v.size() - 1][0] = -v[v.size() - 1][0];
+    v[v.size() - 1][1] = -v[v.size() - 1][1];
+    std::sort(v.begin(), v.end(), [](const auto &a1, const auto &a2) {
+      return a1[0] * a2[1] - a1[1] * a2[0] > 0;
+    });
 
     if (params.polynomial_fit) {
       corners_out_p.emplace_back(cv::Point2d(u_init, v_init));
