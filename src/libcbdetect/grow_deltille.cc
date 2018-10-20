@@ -82,9 +82,9 @@ bool add_deltille_board(Deltille &deltille, int board_type) {
 
 std::vector<int> predict_deltille_corner(const Corner &corners,
                                          std::vector<int> &used,
-                                         std::vector<int> p1,
-                                         std::vector<int> p2,
-                                         std::vector<int> p3) {
+                                         std::vector<int> &p1,
+                                         std::vector<int> &p2,
+                                         std::vector<int> &p3) {
   std::vector<cv::Point2d> pred = predict_corners(corners, p1, p2, p3);
   std::vector<int> pred_idx(pred.size(), -2);
 
@@ -135,25 +135,14 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
                    std::vector<cv::Point2i> &proposal, int board_type) {
   // return immediately, if there do not exist any chessboards
   if (deltille.idx.empty()) { return false; }
-
-  // add proposal top/left/bottom/right
-  if (!add_deltille_board(deltille, board_type)) { return false; }
   int cols = deltille.idx[0].size();
   int rows = deltille.idx.size();
   std::vector<int> idx, p1, p2, p3;
+
+  // fill inside corners
   switch (board_type) {
     case 0: {
-      for (int i = 0; i < cols; ++i) {
-        int idx1 = deltille.idx[3][i];
-        int idx2 = deltille.idx[2][i];
-        int idx3 = deltille.idx[1][i];
-        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
-        p1.emplace_back(idx1);
-        p2.emplace_back(idx2);
-        p3.emplace_back(idx3);
-        proposal.emplace_back(cv::Point2i(i, 0));
-      }
-      for (int i = rows - 4; i > 0; --i) {
+      for (int i = rows - 4; i >= 0; --i) {
         for (int j = 0; j < cols; ++j) {
           if (deltille.idx[i][j] != -1) { continue; }
           int idx1 = deltille.idx[i + 3][j];
@@ -170,17 +159,7 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
     }
     case 1: {
       for (int i = 0; i < rows; ++i) {
-        int idx1 = deltille.idx[i][3];
-        int idx2 = deltille.idx[i][2];
-        int idx3 = deltille.idx[i][1];
-        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
-        p1.emplace_back(idx1);
-        p2.emplace_back(idx2);
-        p3.emplace_back(idx3);
-        proposal.emplace_back(cv::Point2i(0, i));
-      }
-      for (int i = 0; i < rows; ++i) {
-        for (int j = cols - 4; j > 0; --j) {
+        for (int j = cols - 4; j >= 0; --j) {
           if (deltille.idx[i][j] != -1) { continue; }
           int idx1 = deltille.idx[i][j + 3];
           int idx2 = deltille.idx[i][j + 2];
@@ -195,17 +174,7 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
       break;
     }
     case 2: {
-      for (int i = 0; i < cols; ++i) {
-        int idx1 = deltille.idx[rows - 4][i];
-        int idx2 = deltille.idx[rows - 3][i];
-        int idx3 = deltille.idx[rows - 2][i];
-        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
-        p1.emplace_back(idx1);
-        p2.emplace_back(idx2);
-        p3.emplace_back(idx3);
-        proposal.emplace_back(cv::Point2i(i, rows - 1));
-      }
-      for (int i = 3; i < rows - 1; ++i) {
+      for (int i = 3; i <= rows - 1; ++i) {
         for (int j = 0; j < cols; ++j) {
           if (deltille.idx[i][j] != -1) { continue; }
           int idx1 = deltille.idx[i - 3][j];
@@ -222,21 +191,11 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
     }
     case 3: {
       for (int i = 0; i < rows; ++i) {
-        int idx1 = deltille.idx[i][cols - 4];
-        int idx2 = deltille.idx[i][cols - 3];
-        int idx3 = deltille.idx[i][cols - 2];
-        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
-        p1.emplace_back(idx1);
-        p2.emplace_back(idx2);
-        p3.emplace_back(idx3);
-        proposal.emplace_back(cv::Point2i(cols - 1, i));
-      }
-      for (int i = 0; i < rows; ++i) {
-        for (int j = 3; j < cols - 1; ++j) {
+        for (int j = 3; j <= cols - 1; ++j) {
           if (deltille.idx[i][j] != -1) { continue; }
-          int idx1 = deltille.idx[i][j - 1];
+          int idx1 = deltille.idx[i][j - 3];
           int idx2 = deltille.idx[i][j - 2];
-          int idx3 = deltille.idx[i][j - 3];
+          int idx3 = deltille.idx[i][j - 1];
           if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
           p1.emplace_back(idx1);
           p2.emplace_back(idx2);
@@ -249,14 +208,91 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
     default:break;
   }
 
-  // predict corners
+  // predict inside corners
   std::vector<int> pred = predict_deltille_corner(corners, used, p1, p2, p3);
   deltille.num += proposal.size();
   for (int i = 0; i < proposal.size(); ++i) {
     if (pred[i] == -2) { --deltille.num; }
     deltille.idx[proposal[i].y][proposal[i].x] = pred[i];
   }
-  return true;
+
+  // grow inside corners
+  if (!proposal.empty()) { return true; }
+
+  // add proposal top/left/bottom/right
+  if (!add_deltille_board(deltille, board_type)) { return false; }
+  p1.clear();
+  p2.clear();
+  p3.clear();
+  cols = deltille.idx[0].size();
+  rows = deltille.idx.size();
+
+  // grow board corners
+  switch (board_type) {
+    case 0: {
+      for (int i = 0; i < cols; ++i) {
+        int idx1 = deltille.idx[3][i];
+        int idx2 = deltille.idx[2][i];
+        int idx3 = deltille.idx[1][i];
+        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
+        p1.emplace_back(idx1);
+        p2.emplace_back(idx2);
+        p3.emplace_back(idx3);
+        proposal.emplace_back(cv::Point2i(i, 0));
+      }
+      break;
+    }
+    case 1: {
+      for (int i = 0; i < rows; ++i) {
+        int idx1 = deltille.idx[i][3];
+        int idx2 = deltille.idx[i][2];
+        int idx3 = deltille.idx[i][1];
+        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
+        p1.emplace_back(idx1);
+        p2.emplace_back(idx2);
+        p3.emplace_back(idx3);
+        proposal.emplace_back(cv::Point2i(0, i));
+      }
+      break;
+    }
+    case 2: {
+      for (int i = 0; i < cols; ++i) {
+        int idx1 = deltille.idx[rows - 4][i];
+        int idx2 = deltille.idx[rows - 3][i];
+        int idx3 = deltille.idx[rows - 2][i];
+        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
+        p1.emplace_back(idx1);
+        p2.emplace_back(idx2);
+        p3.emplace_back(idx3);
+        proposal.emplace_back(cv::Point2i(i, rows - 1));
+      }
+      break;
+    }
+    case 3: {
+      for (int i = 0; i < rows; ++i) {
+        int idx1 = deltille.idx[i][cols - 4];
+        int idx2 = deltille.idx[i][cols - 3];
+        int idx3 = deltille.idx[i][cols - 2];
+        if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
+        p1.emplace_back(idx1);
+        p2.emplace_back(idx2);
+        p3.emplace_back(idx3);
+        proposal.emplace_back(cv::Point2i(cols - 1, i));
+      }
+      break;
+    }
+    default:break;
+  }
+
+  // predict board corners
+  pred = predict_deltille_corner(corners, used, p1, p2, p3);
+  deltille.num += proposal.size();
+  for (int i = 0; i < proposal.size(); ++i) {
+    if (pred[i] == -2) { --deltille.num; }
+    deltille.idx[proposal[i].y][proposal[i].x] = pred[i];
+  }
+
+  return !proposal.empty();
 }
 
 }

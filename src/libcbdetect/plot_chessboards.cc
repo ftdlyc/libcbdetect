@@ -72,7 +72,7 @@ void plot_chessboards(const cv::Mat &img, const Corner &corners,
              cv::Scalar(0, 255, 0), 3, cv::LINE_AA);
 
     // plot numbers
-    cv::Point2d mean(0, 0);
+    cv::Point2d mean(0.0, 0.0);
     for (int i = 0; i < chessboard.size(); ++i) {
       for (int j = 0; j < chessboard[0].size(); ++j) {
         mean += corners.p[chessboard[i][j]];

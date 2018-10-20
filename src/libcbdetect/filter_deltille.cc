@@ -1,6 +1,7 @@
 // c++ version by ftdlyc
 
 #include "filter_deltille.h"
+#include <iterator>
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include "config.h"
@@ -8,8 +9,24 @@
 
 namespace cbdetect {
 
+double find_minE(const Deltille &deltille, const cv::Point2i &p) {
+  double minE = std::min(std::min(deltille.energy[p.y][p.x][0], deltille.energy[p.y][p.x][1]),
+                         deltille.energy[p.y][p.x][2]);
+  if (p.x - 1 >= 0) {
+    minE = std::min(minE, deltille.energy[p.y][p.x - 1][0]);
+  }
+  if (p.x - 1 >= 0 && p.y - 1 >= 0) {
+    minE = std::min(minE, deltille.energy[p.y - 1][p.x - 1][1]);
+  }
+  if (p.y - 1 >= 0) {
+    minE = std::min(minE, deltille.energy[p.y - 1][p.x][2]);
+  }
+  return minE;
+}
+
 void filter_deltille(const Corner &corners, std::vector<int> &used, Deltille &deltille,
                      std::vector<cv::Point2i> &proposal, double &energy) {
+  // erase wrong corners
   while (!proposal.empty()) {
     cv::Point3i maxE_pos = deltille_energy(corners, deltille);
     double p_energy = deltille.energy[maxE_pos.y][maxE_pos.x][maxE_pos.z];
@@ -18,6 +35,7 @@ void filter_deltille(const Corner &corners, std::vector<int> &used, Deltille &de
       break;
     }
 
+    // find the wrongest corner
     cv::Point2i p[3];
     p[0] = {maxE_pos.x, maxE_pos.y};
     switch (maxE_pos.z) {
@@ -39,42 +57,34 @@ void filter_deltille(const Corner &corners, std::vector<int> &used, Deltille &de
       default:break;
     }
     double minE_wrong[3];
-    minE_wrong[0] = std::min(std::min(deltille.energy[p[0].y][p[0].x][0], deltille.energy[p[0].y][p[0].x][1]),
-                             deltille.energy[p[0].y][p[0].x][2]);
-    minE_wrong[1] = std::min(std::min(deltille.energy[p[1].y][p[1].x][0], deltille.energy[p[1].y][p[1].x][1]),
-                             deltille.energy[p[1].y][p[1].x][2]);
-    minE_wrong[2] = std::min(std::min(deltille.energy[p[2].y][p[2].x][0], deltille.energy[p[2].y][p[2].x][1]),
-                             deltille.energy[p[2].y][p[2].x][2]);
-    double minE = DBL_MIN;
-    decltype(proposal.begin()) iter;
+    minE_wrong[0] = find_minE(deltille, p[0]);
+    minE_wrong[1] = find_minE(deltille, p[1]);
+    minE_wrong[2] = find_minE(deltille, p[2]);
+
+    double minE = -DBL_MAX;
+    int iter = 0;
     for (auto it = proposal.begin(); it < proposal.end(); ++it) {
-      if (it->x == p[0].x && it->y == p[0].y) {
-        if (minE_wrong[0] > minE) {
-          minE = minE_wrong[0];
-        }
+      if (it->x == p[0].x && it->y == p[0].y && minE_wrong[0] > minE) {
+        minE = minE_wrong[0];
         maxE_pos.x = it->x;
         maxE_pos.y = it->y;
-        iter = it;
+        iter = it - proposal.begin();
       }
-      if (it->x == p[1].x && it->y == p[1].y) {
-        if (minE_wrong[1] > minE) {
-          minE = minE_wrong[1];
-        }
+      if (it->x == p[1].x && it->y == p[1].y && minE_wrong[1] > minE) {
+        minE = minE_wrong[1];
         maxE_pos.x = it->x;
         maxE_pos.y = it->y;
-        iter = it;
+        iter = it - proposal.begin();
       }
-      if (it->x == p[2].x && it->y == p[2].y) {
-        if (minE_wrong[2] > minE) {
-          minE = minE_wrong[2];
-        }
+      if (it->x == p[2].x && it->y == p[2].y && minE_wrong[2] > minE) {
+        minE = minE_wrong[2];
         maxE_pos.x = it->x;
         maxE_pos.y = it->y;
-        iter = it;
+        iter = it - proposal.begin();
       }
     }
 
-    proposal.erase(iter);
+    proposal.erase(proposal.begin() + iter);
     used[deltille.idx[maxE_pos.y][maxE_pos.x]] = 0;
     deltille.idx[maxE_pos.y][maxE_pos.x] = -2;
     --deltille.num;

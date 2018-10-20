@@ -62,6 +62,7 @@ enum CornerType {
 typedef struct Params {
   bool show_processing;
   bool show_debug_image;
+  bool show_grow_processing;
   bool norm;
   bool polynomial_fit;
   int norm_half_kernel_size;
@@ -75,6 +76,7 @@ typedef struct Params {
   Params() :
       show_processing(false),
       show_debug_image(false),
+      show_grow_processing(false),
       norm(false),
       polynomial_fit(true),
       norm_half_kernel_size(31),
