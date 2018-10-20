@@ -89,7 +89,8 @@ void deltilles_from_corners(const cv::Mat &img, const Corner &corners,
 
       for (int j = 0; j < 4; ++j) {
         std::vector<cv::Point2i> proposal;
-        if (!grow_deltille(corners, used, deltille, proposal, j)) { continue; }
+        GrowType grow_type = grow_deltille(corners, used, deltille, proposal, j);
+        if (grow_type == Failure) { continue; }
 
         if (params.show_grow_processing) {
           for (int ii = 0; ii < deltille.idx.size(); ++ii) {
@@ -114,7 +115,10 @@ void deltilles_from_corners(const cv::Mat &img, const Corner &corners,
           std::cout << "\n";
           debug_grow_process(img, corners, deltille, proposal, j, true);
         }
+
+        if (grow_type == Inside) { --j; }
       }
+
       // exit loop
       if (deltille.num == num_corners) { break; }
     }

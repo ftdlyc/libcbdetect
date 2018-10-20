@@ -131,10 +131,10 @@ std::vector<int> predict_deltille_corner(const Corner &corners,
   return pred_idx;
 }
 
-bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &deltille,
-                   std::vector<cv::Point2i> &proposal, int board_type) {
+GrowType grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &deltille,
+                       std::vector<cv::Point2i> &proposal, int board_type) {
   // return immediately, if there do not exist any chessboards
-  if (deltille.idx.empty()) { return false; }
+  if (deltille.idx.empty()) { return Failure; }
   int cols = deltille.idx[0].size();
   int rows = deltille.idx.size();
   std::vector<int> idx, p1, p2, p3;
@@ -217,10 +217,10 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
   }
 
   // grow inside corners
-  if (!proposal.empty()) { return true; }
+  if (!proposal.empty()) { return Inside; }
 
   // add proposal top/left/bottom/right
-  if (!add_deltille_board(deltille, board_type)) { return false; }
+  if (!add_deltille_board(deltille, board_type)) { return Failure; }
   p1.clear();
   p2.clear();
   p3.clear();
@@ -292,7 +292,8 @@ bool grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &delt
     deltille.idx[proposal[i].y][proposal[i].x] = pred[i];
   }
 
-  return !proposal.empty();
+  if (proposal.empty()) { return Failure; }
+  return Board;
 }
 
 }

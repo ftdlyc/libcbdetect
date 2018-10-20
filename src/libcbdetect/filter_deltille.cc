@@ -21,6 +21,15 @@ double find_minE(const Deltille &deltille, const cv::Point2i &p) {
   if (p.y - 1 >= 0) {
     minE = std::min(minE, deltille.energy[p.y - 1][p.x][2]);
   }
+  if (p.x - 2 >= 0) {
+    minE = std::min(minE, deltille.energy[p.y][p.x - 2][0]);
+  }
+  if (p.x - 2 >= 0 && p.y - 2 >= 0) {
+    minE = std::min(minE, deltille.energy[p.y - 2][p.x - 2][1]);
+  }
+  if (p.y - 2 >= 0) {
+    minE = std::min(minE, deltille.energy[p.y - 2][p.x][2]);
+  }
   return minE;
 }
 
