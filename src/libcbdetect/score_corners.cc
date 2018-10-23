@@ -150,8 +150,8 @@ void sorce_corners(const cv::Mat &img, const cv::Mat &img_weight, Corner &corner
   // for all corners do
   for (int i = 0; i < corners.p.size(); ++i) {
     // corner location
-    int u = corners.p[i].x;
-    int v = corners.p[i].y;
+    double u = corners.p[i].x;
+    double v = corners.p[i].y;
     int r = corners.r[i];
 
     if (u - r < 0 || u + r >= width || v - r < 0 || v + r >= height) {

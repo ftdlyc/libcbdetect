@@ -38,7 +38,7 @@ namespace cbdetect {
 
 void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &params) {
   // convert to double grayscale image
-  cv::Mat img_norm, img_show;
+  cv::Mat img_norm;
   if (img.channels() == 3) {
     cv::cvtColor(img, img_norm, CV_BGRA2GRAY);
     img_norm.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
@@ -49,6 +49,12 @@ void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &pa
   // normalize image and calculate gradients
   cv::Mat img_du, img_dv, img_angle, img_weight;
   image_normalization_and_gradients(img_norm, img_du, img_dv, img_angle, img_weight, params);
+  if (params.show_debug_image && params.norm) {
+    cv::Mat img_show;
+    img_norm.convertTo(img_show, CV_8U, 255, 0);
+    cv::imshow("norm image ", img_show);
+    cv::waitKey();
+  }
 
   // get corner's initial locaiton
   get_init_location(img_norm, img_du, img_dv, corners, params);
@@ -98,6 +104,7 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   find_corners_in_image(img, corners_1, params);
   Params params_resize = params;
   params_resize.norm_half_kernel_size = params.norm_half_kernel_size / 2;
+  params_resize.polynomial_fit_half_kernel_size = std::max(2, params.polynomial_fit_half_kernel_size / 2);
   find_corners_in_image(img_resized, corners_2, params_resize);
   std::for_each(corners_2.p.begin(), corners_2.p.end(), [](auto &p) { p *= 2; });
 
@@ -109,7 +116,7 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   corners.v3 = std::move(corners_1.v3);
   corners.score = std::move(corners_1.score);
   for (int i = 0; i < corners_2.p.size(); ++i) {
-    double min_dist = 1e10;
+    double min_dist = DBL_MAX;
     cv::Point2d &p2 = corners_2.p[i];
     for (int j = 0; j < n_1; ++j) {
       cv::Point2d &p1 = corners.p[j];

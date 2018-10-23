@@ -117,7 +117,7 @@ void polynomial_fit_saddle(const cv::Mat &img, int r, Corner &corners) {
 void polynomial_fit_monkey_saddle(const cv::Mat &img, int r, Corner &corners) {
   // maximum iterations and precision
   int max_iteration = 5;
-  double eps = 0.01;
+  double eps = 0.001;
   int width = img.cols;
   int height = img.rows;
 
@@ -181,7 +181,7 @@ void polynomial_fit_monkey_saddle(const cv::Mat &img, int r, Corner &corners) {
       cv::Mat tmp_a = (cv::Mat_<double>(3, 2) << 3.0 * k.at<double>(0, 0), k.at<double>(1, 0),
           2.0 * k.at<double>(1, 0), 2.0 * k.at<double>(2, 0),
           k.at<double>(2, 0), 3.0 * k.at<double>(3, 0));
-      cv::Mat tmp_b = (cv::Mat_<double>(3, 1) << -k.at<double>(4, 0), -2.0 * k.at<double>(5, 0), -k.at<double>(6, 0));
+      cv::Mat tmp_b = (cv::Mat_<double>(3, 1) << -k.at<double>(4, 0), -k.at<double>(5, 0), -k.at<double>(6, 0));
       cv::Mat tmp_x = (tmp_a.t() * tmp_a).inv() * tmp_a.t() * tmp_b;
       double dx = tmp_x.at<double>(0, 0);
       double dy = tmp_x.at<double>(1, 0);

@@ -63,7 +63,8 @@ void deltilles_from_corners(const cv::Mat &img, const Corner &corners,
   std::default_random_engine e;
   auto time = std::chrono::system_clock::now().time_since_epoch();
   e.seed(time.count());
-  int start = e() % corners.p.size();
+  int start = 47;
+  e() % corners.p.size();
 
   // for all seed corners do
   int n = 0;
@@ -87,7 +88,7 @@ void deltilles_from_corners(const cv::Mat &img, const Corner &corners,
     while (1) {
       int num_corners = deltille.num;
 
-      for (int j = 0; j < 4; ++j) {
+      for (int j = 0; j < 6; ++j) {
         std::vector<cv::Point2i> proposal;
         GrowType grow_type = grow_deltille(corners, used, deltille, proposal, j);
         if (grow_type == Failure) { continue; }

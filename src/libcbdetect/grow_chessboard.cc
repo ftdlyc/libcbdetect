@@ -35,26 +35,32 @@ std::vector<cv::Point2d> predict_corners(const Corner &corners,
                                          const std::vector<int> &p1,
                                          const std::vector<int> &p2,
                                          const std::vector<int> &p3) {
-  std::vector<cv::Point2d> pred(p1.size());
-  for (int i = 0; i < pred.size(); ++i) {
-    // compute vectors
-    cv::Point2d v1 = corners.p[p2[i]] - corners.p[p1[i]];
-    cv::Point2d v2 = corners.p[p3[i]] - corners.p[p2[i]];
+  std::vector<cv::Point2d> pred(p3.size());
+  if (p1.empty()) {
+    for (int i = 0; i < pred.size(); ++i) {
+      pred[i] = 2 * corners.p[p3[i]] - corners.p[p2[i]];
+    }
+  } else {
+    for (int i = 0; i < pred.size(); ++i) {
+      // compute vectors
+      cv::Point2d v1 = corners.p[p2[i]] - corners.p[p1[i]];
+      cv::Point2d v2 = corners.p[p3[i]] - corners.p[p2[i]];
 
-    // predict angles
-    double a1 = std::atan2(v1.y, v1.x);
-    double a2 = std::atan2(v2.y, v2.x);
-    double a3 = 2 * a2 - a1;
+      // predict angles
+      double a1 = std::atan2(v1.y, v1.x);
+      double a2 = std::atan2(v2.y, v2.x);
+      double a3 = 2 * a2 - a1;
 
-    //  predict scales
-    double s1 = cv::norm(v1);
-    double s2 = cv::norm(v2);
-    double s3 = 2 * s2 - s1;
+      //  predict scales
+      double s1 = cv::norm(v1);
+      double s2 = cv::norm(v2);
+      double s3 = 2 * s2 - s1;
 
-    // predict p4 (the factor 0.75 ensures that under extreme
-    // distortions (omnicam) the closer prediction is selected)
-    pred[i].x = corners.p[p3[i]].x + 0.75 * s3 * std::cos(a3);
-    pred[i].y = corners.p[p3[i]].y + 0.75 * s3 * std::sin(a3);
+      // predict p4 (the factor 0.75 ensures that under extreme
+      // distortions (omnicam) the closer prediction is selected)
+      pred[i].x = corners.p[p3[i]].x + 0.75 * s3 * std::cos(a3);
+      pred[i].y = corners.p[p3[i]].y + 0.75 * s3 * std::sin(a3);
+    }
   }
   return pred;
 }

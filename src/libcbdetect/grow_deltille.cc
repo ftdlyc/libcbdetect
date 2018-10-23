@@ -139,7 +139,8 @@ GrowType grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &
   int rows = deltille.idx.size();
   std::vector<int> idx, p1, p2, p3;
 
-  // fill inside corners
+#if 0
+  // fill inside corners top/left/bottom/right/top-left/bottom-right
   switch (board_type) {
     case 0: {
       for (int i = rows - 4; i >= 0; --i) {
@@ -174,7 +175,7 @@ GrowType grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &
       break;
     }
     case 2: {
-      for (int i = 3; i <= rows - 1; ++i) {
+      for (int i = 3; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
           if (deltille.idx[i][j] != -1) { continue; }
           int idx1 = deltille.idx[i - 3][j];
@@ -191,7 +192,7 @@ GrowType grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &
     }
     case 3: {
       for (int i = 0; i < rows; ++i) {
-        for (int j = 3; j <= cols - 1; ++j) {
+        for (int j = 3; j < cols; ++j) {
           if (deltille.idx[i][j] != -1) { continue; }
           int idx1 = deltille.idx[i][j - 3];
           int idx2 = deltille.idx[i][j - 2];
@@ -205,8 +206,129 @@ GrowType grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &
       }
       break;
     }
+    case 4: {
+      for (int i = 3; i < rows; ++i) {
+        for (int j = 3; j < cols; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx1 = deltille.idx[i - 3][j - 3];
+          int idx2 = deltille.idx[i - 2][j - 2];
+          int idx3 = deltille.idx[i - 1][j - 1];
+          if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
+          p1.emplace_back(idx1);
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    case 5: {
+      for (int i = 0; i < rows - 3; ++i) {
+        for (int j = 0; j < cols - 3; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx1 = deltille.idx[i + 3][j + 3];
+          int idx2 = deltille.idx[i + 2][j + 2];
+          int idx3 = deltille.idx[i + 1][j + 1];
+          if (idx1 < 0 || idx2 < 0 || idx3 < 0) { continue; }
+          p1.emplace_back(idx1);
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+    }
     default:break;
   }
+#else
+  // fill inside corners top/left/bottom/right/top-left/bottom-right
+  switch (board_type) {
+    case 0: {
+      for (int i = rows - 3; i >= 0; --i) {
+        for (int j = 0; j < cols; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx2 = deltille.idx[i + 2][j];
+          int idx3 = deltille.idx[i + 1][j];
+          if (idx2 < 0 || idx3 < 0) { continue; }
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    case 1: {
+      for (int i = 0; i < rows; ++i) {
+        for (int j = cols - 3; j >= 0; --j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx2 = deltille.idx[i][j + 2];
+          int idx3 = deltille.idx[i][j + 1];
+          if (idx2 < 0 || idx3 < 0) { continue; }
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    case 2: {
+      for (int i = 2; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx2 = deltille.idx[i - 2][j];
+          int idx3 = deltille.idx[i - 1][j];
+          if (idx2 < 0 || idx3 < 0) { continue; }
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    case 3: {
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 2; j < cols; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx2 = deltille.idx[i][j - 2];
+          int idx3 = deltille.idx[i][j - 1];
+          if (idx2 < 0 || idx3 < 0) { continue; }
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    case 4: {
+      for (int i = 2; i < rows; ++i) {
+        for (int j = 2; j < cols; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx2 = deltille.idx[i - 2][j - 2];
+          int idx3 = deltille.idx[i - 1][j - 1];
+          if (idx2 < 0 || idx3 < 0) { continue; }
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    case 5: {
+      for (int i = 0; i < rows - 2; ++i) {
+        for (int j = 0; j < cols - 2; ++j) {
+          if (deltille.idx[i][j] != -1) { continue; }
+          int idx2 = deltille.idx[i + 2][j + 2];
+          int idx3 = deltille.idx[i + 1][j + 1];
+          if (idx2 < 0 || idx3 < 0) { continue; }
+          p2.emplace_back(idx2);
+          p3.emplace_back(idx3);
+          proposal.emplace_back(cv::Point2i(j, i));
+        }
+      }
+      break;
+    }
+    default:break;
+  }
+#endif
 
   // predict inside corners
   std::vector<int> pred = predict_deltille_corner(corners, used, p1, p2, p3);
@@ -227,7 +349,7 @@ GrowType grow_deltille(const Corner &corners, std::vector<int> &used, Deltille &
   cols = deltille.idx[0].size();
   rows = deltille.idx.size();
 
-  // grow board corners
+  // grow board corners top/left/bottom/right
   switch (board_type) {
     case 0: {
       for (int i = 0; i < cols; ++i) {
