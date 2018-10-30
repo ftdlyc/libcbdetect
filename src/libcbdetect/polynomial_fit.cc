@@ -7,6 +7,19 @@
 
 namespace cbdetect {
 
+void create_gaussin_filter_kernel(cv::Mat &kernel, double sigma) {
+  int r = std::round(3 * sigma);
+  kernel.create(2 * r + 1, 2 * r + 1, CV_64F);
+  double sum = 0.0;
+  for (int i = -r; i <= r; ++i) {
+    for (int j = -r; j <= r; ++j) {
+      kernel.at<double>(i + r, j + r) = std::exp(-(i * i + j * j) / 2 / sigma / sigma);
+      sum += kernel.at<double>(i + r, j + r);
+    }
+  }
+  kernel /= sum;
+}
+
 // paper: ROCHADE Robust Checkerboard Advanced Detection for Camera Calibration, ECCV 2014
 int create_cone_filter_kernel(cv::Mat &kernel, int r) {
   kernel.create(2 * r + 1, 2 * r + 1, CV_64F);
