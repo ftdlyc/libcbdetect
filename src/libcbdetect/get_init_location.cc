@@ -43,6 +43,7 @@
 #include "config.h"
 #include "create_correlation_patch.h"
 #include "get_image_patch.h"
+#include "image_normalization_and_gradients.h"
 #include "non_maximum_suppression.h"
 
 namespace cbdetect {
@@ -102,13 +103,89 @@ void hessian_response(const cv::Mat &img_in, cv::Mat &img_out) {
   }
 }
 
+void rotate_image(const cv::Mat &img_in, double angle, cv::Mat &img_out, cv::Size out_size = cv::Size()) {
+  if (std::abs(angle) < 1e-3) {
+    img_out = img_in.clone();
+    return;
+  }
+
+  // cal new width and height
+  double in_center_u = (img_in.cols - 1) / 2.0;
+  double in_center_v = (img_in.rows - 1) / 2.0;
+  if (out_size.empty()) {
+    cv::Point2i tl(std::round(-in_center_u * std::cos(angle) - in_center_v * std::sin(angle)),
+                   std::round(in_center_u * std::sin(angle) - in_center_v * std::cos(angle)));
+    cv::Point2i tr(std::round(in_center_u * std::cos(angle) - in_center_v * std::sin(angle)),
+                   std::round(-in_center_u * std::sin(angle) - in_center_v * std::cos(angle)));
+    cv::Point2i bl(std::round(-in_center_u * std::cos(angle) + in_center_v * std::sin(angle)),
+                   std::round(in_center_u * std::sin(angle) + in_center_v * std::cos(angle)));
+    cv::Point2i br(std::round(in_center_u * std::cos(angle) + in_center_v * std::sin(angle)),
+                   std::round(-in_center_u * std::sin(angle) + in_center_v * std::cos(angle)));
+    if (std::min(tl.x, br.x) > std::min(tr.x, bl.x)) {
+      out_size = cv::Size(std::abs(tr.x - bl.x) + 1, std::abs(tl.y - br.y) + 1);
+    } else {
+      out_size = cv::Size(std::abs(tl.x - br.x) + 1, std::abs(tr.y - bl.y) + 1);
+    }
+  }
+  double out_center_u = (out_size.width - 1) / 2.0;
+  double out_center_v = (out_size.height - 1) / 2.0;
+
+//  // rotate image
+//  img_out.create(height, width, CV_64F);
+//  double new_center_u = (width - 1) / 2.0;
+//  double new_center_v = (height - 1) / 2.0;
+//  for (int j = 0; j < img_out.rows; ++j) {
+//    for (int i = 0; i < img_out.cols; ++i) {
+//      double u = (i - new_center_u) * std::cos(angle) - (j - new_center_v) * sin(angle) + center_u;
+//      double v = (i - new_center_u) * std::sin(angle) + (j - new_center_v) * cos(angle) + center_v;
+//      if (u < 0 || u >= img_in.cols - 1 || v < 0 || v >= img_in.rows - 1) {
+//        img_out.at<double>(j, i) = 0;
+//        continue;
+//      }
+//
+//      int iu = u;
+//      int iv = v;
+//      double du = u - iu;
+//      double dv = v - iv;
+//      double a00 = 1 - du - dv + du * dv;
+//      double a01 = du - du * dv;
+//      double a10 = dv - du * dv;
+//      double a11 = du * dv;
+//      img_out.at<double>(j, i) = img_in.at<double>(v, u) * a00 + img_in.at<double>(v, u + 1) * a01 +
+//          img_in.at<double>(v + 1, u) * a10 + img_in.at<double>(v + 1, u + 1) * a11;
+//    }
+//  }
+
+  // rotate image
+  double shift_u = out_center_u - in_center_u * std::cos(angle) - in_center_v * std::sin(angle);
+  double shift_v = out_center_v + in_center_u * std::sin(angle) - in_center_v * std::cos(angle);
+  cv::Mat rot = (cv::Mat_<double>(2, 3) << std::cos(angle), std::sin(angle), shift_u,
+      -std::sin(angle), std::cos(angle), shift_v);
+  cv::warpAffine(img_in, img_out, rot, out_size);
+}
+
+// paper: Accurate Detection and Localization of Checkerboard Corners for Calibration
+void localized_radon_transform(const cv::Mat &img_in, cv::Mat &img_out) {
+  std::vector<double> angles = {0, M_PI / 4, M_PI / 2, 3 * M_PI / 4};
+  std::vector<cv::Mat> rb_imgs(4, cv::Mat(img_in.size(), img_in.type()));
+  for (int i = 0; i < 4; ++i) {
+    cv::Mat r_img, blur_img;
+    rotate_image(img_in, -angles[i], r_img);
+    box_filter(r_img, blur_img, 4, 0);
+    rotate_image(blur_img, angles[i], rb_imgs[i], img_in.size());
+  }
+  cv::Mat max_img_1 = cv::max(rb_imgs[0], rb_imgs[1]);
+  cv::Mat max_img_2 = cv::max(rb_imgs[2], rb_imgs[3]);
+  cv::Mat min_img_1 = cv::min(rb_imgs[0], rb_imgs[1]);
+  cv::Mat min_img_2 = cv::min(rb_imgs[2], rb_imgs[3]);
+  img_out = cv::max(max_img_1, max_img_2) - cv::min(min_img_1, min_img_2);
+  img_out.forEach<double>([](double &pixel, const int *position) -> void {
+    pixel = pixel * pixel;
+  });
+}
+
 void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat &img_dv,
                        Corner &corners, const Params &params) {
-  corners.p.clear();
-  corners.r.clear();
-  corners.v1.clear();
-  corners.v2.clear();
-  corners.score.clear();
   switch (params.detct_mode) {
     case TemplateMatchFast:
     case TemplateMatchSlow: {
@@ -162,7 +239,7 @@ void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat 
           // combine both
           img_corners = cv::max(img_corners, cv::max(img_corners_s1, img_corners_s2));
         }
-        non_maximum_suppression(img_corners, 1, params.score_thr, r, corners);
+        non_maximum_suppression(img_corners, 1, params.init_loc_thr / 10.0, r, corners);
       }
       break;
     }
@@ -174,9 +251,17 @@ void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat 
       double mn = 0, mx = 0;
       cv::minMaxIdx(hessian_img, &mn, &mx, NULL, NULL);
       hessian_img = cv::abs(hessian_img);
-      double thr = std::abs(mn * params.hessian_thr);
+      double thr = std::abs(mn * params.init_loc_thr);
       for (const auto &r : params.radius) {
         non_maximum_suppression(hessian_img, r, thr, r, corners);
+      }
+      break;
+    }
+    case LocalizedRadonTransform: {
+      cv::Mat response_img;
+      localized_radon_transform(img, response_img);
+      for (const auto &r : params.radius) {
+        non_maximum_suppression(response_img, r, params.init_loc_thr / 10.0, r, corners);
       }
       break;
     }
