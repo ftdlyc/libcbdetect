@@ -27,46 +27,47 @@
 
 namespace cbdetect {
 
-void box_filter(const cv::Mat &img, cv::Mat &blur_img, int kernel_size) {
+void box_filter(const cv::Mat &img, cv::Mat &blur_img, int kernel_size_x, int kernel_size_y) {
+  if (kernel_size_y < 0) { kernel_size_y = kernel_size_x; }
   blur_img.create(img.size(), CV_64F);
   std::vector<double> buf(img.cols, 0);
   std::vector<int> count_buf(img.cols, 0);
   int count = 0;
-  for (int j = 0; j < std::min(kernel_size, img.rows - 1); ++j) {
+  for (int j = 0; j < std::min(kernel_size_y, img.rows - 1); ++j) {
     for (int i = 0; i < img.cols; ++i) {
       buf[i] += img.at<double>(j, i);
       ++count_buf[i];
     }
   }
   for (int j = 0; j < img.rows; ++j) {
-    if (j > kernel_size) {
+    if (j > kernel_size_y) {
       for (int i = 0; i < img.cols; ++i) {
-        buf[i] -= img.at<double>(j - kernel_size - 1, i);
+        buf[i] -= img.at<double>(j - kernel_size_y - 1, i);
         --count_buf[i];
       }
     }
-    if (j + kernel_size < img.rows) {
+    if (j + kernel_size_y < img.rows) {
       for (int i = 0; i < img.cols; ++i) {
-        buf[i] += img.at<double>(j + kernel_size, i);
+        buf[i] += img.at<double>(j + kernel_size_y, i);
         ++count_buf[i];
       }
     }
     blur_img.at<double>(j, 0) = 0;
     count = 0;
-    for (int i = 0; i <= std::min(kernel_size, img.cols - 1); ++i) {
+    for (int i = 0; i <= std::min(kernel_size_x, img.cols - 1); ++i) {
       blur_img.at<double>(j, 0) += buf[i];
       count += count_buf[i];
     }
     for (int i = 1; i < img.cols; ++i) {
       blur_img.at<double>(j, i) = blur_img.at<double>(j, i - 1);
       blur_img.at<double>(j, i - 1) /= count;
-      if (i > kernel_size) {
-        blur_img.at<double>(j, i) -= buf[i - kernel_size - 1];
-        count -= count_buf[i - kernel_size - 1];
+      if (i > kernel_size_x) {
+        blur_img.at<double>(j, i) -= buf[i - kernel_size_x - 1];
+        count -= count_buf[i - kernel_size_x - 1];
       }
-      if (i + kernel_size < img.cols) {
-        blur_img.at<double>(j, i) += buf[i + kernel_size];
-        count += count_buf[i + kernel_size];
+      if (i + kernel_size_x < img.cols) {
+        blur_img.at<double>(j, i) += buf[i + kernel_size_x];
+        count += count_buf[i + kernel_size_x];
       }
     }
     blur_img.at<double>(j, img.cols - 1) /= count;

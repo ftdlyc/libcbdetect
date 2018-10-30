@@ -51,7 +51,10 @@ enum DetectMethod {
 
   // compute hessian of image, detect by a threshold
   // form https://github.com/facebookincubator/deltille
-      HessianResponse
+      HessianResponse,
+
+  // paper: Accurate Detection and Localization of Checkerboard Corners for Calibration
+      LocalizedRadonTransform
 };
 
 enum CornerType {
@@ -67,7 +70,7 @@ typedef struct Params {
   bool polynomial_fit;
   int norm_half_kernel_size;
   int polynomial_fit_half_kernel_size;
-  double hessian_thr;
+  double init_loc_thr;
   double score_thr;
   DetectMethod detct_mode;
   CornerType corner_type;
@@ -81,7 +84,7 @@ typedef struct Params {
       polynomial_fit(true),
       norm_half_kernel_size(31),
       polynomial_fit_half_kernel_size(3),
-      hessian_thr(0.01),
+      init_loc_thr(0.01),
       score_thr(0.01),
       detct_mode(TemplateMatchFast),
       corner_type(SaddlePoint),
