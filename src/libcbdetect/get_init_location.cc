@@ -201,12 +201,13 @@ void localized_radon_transform(const cv::Mat &img_in, cv::Mat &img_out) {
 
 void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat &img_dv,
                        Corner &corners, const Params &params) {
-  switch (params.detct_mode) {
+  DetectMethod detct_method = params.corner_type == MonkeySaddlePoint ? HessianResponse : params.detct_method;
+  switch (detct_method) {
     case TemplateMatchFast:
     case TemplateMatchSlow: {
       // templates and scales
       std::vector<double> tprops;
-      if (params.detct_mode == TemplateMatchFast) {
+      if (detct_method == TemplateMatchFast) {
         tprops = {0, M_PI_2,
                   M_PI_4, -M_PI_4};
       } else {
@@ -254,7 +255,7 @@ void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat 
           // combine both
           img_corners = cv::max(img_corners, cv::max(img_corners_s1, img_corners_s2));
         }
-        non_maximum_suppression(img_corners, 1, params.init_loc_thr / 10.0, r, corners);
+        non_maximum_suppression(img_corners, 1, params.init_loc_thr, r, corners);
       }
       break;
     }

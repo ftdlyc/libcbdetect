@@ -87,23 +87,23 @@ typedef struct Params {
   int polynomial_fit_half_kernel_size;
   double init_loc_thr;
   double score_thr;
-  DetectMethod detct_mode;
+  DetectMethod detct_method;
   CornerType corner_type;
   std::vector<int> radius;
 
   Params() :
-      show_processing(false),
+      show_processing(true),
       show_debug_image(false),
       show_grow_processing(false),
       norm(false),
       polynomial_fit(true),
       norm_half_kernel_size(31),
-      polynomial_fit_half_kernel_size(3),
+      polynomial_fit_half_kernel_size(4),
       init_loc_thr(0.01),
       score_thr(0.01),
-      detct_mode(TemplateMatchFast),
+      detct_method(HessianResponse),
       corner_type(SaddlePoint),
-      radius({4, 6, 10}) {}
+      radius({5, 7}) {}
 } Params;
 
 typedef struct Corner {
