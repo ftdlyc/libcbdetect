@@ -154,7 +154,7 @@ void sorce_corners(const cv::Mat &img, const cv::Mat &img_weight, Corner &corner
     double v = corners.p[i].y;
     int r = corners.r[i];
 
-    if (u - r < 0 || u + r >= width || v - r < 0 || v + r >= height) {
+    if (u - r < 0 || u + r >= width - 1 || v - r < 0 || v + r >= height - 1) {
       corners.score[i] = 0.;
       continue;
     }

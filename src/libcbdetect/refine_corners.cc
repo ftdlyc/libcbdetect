@@ -153,7 +153,7 @@ void refine_corners(const cv::Mat &img_du, const cv::Mat &img_dv, const cv::Mat 
     int r = corners.r[i];
 
     // estimate edge orientations (continue, if too close to border)
-    if (ui - r < 0 || ui + r >= width || vi - r < 0 || vi + r >= height) { continue; }
+    if (ui - r < 0 || ui + r >= width - 1 || vi - r < 0 || vi + r >= height - 1) { continue; }
     cv::Mat img_angle_sub, img_weight_sub;
     get_image_patch(img_angle, ui, vi, r, img_angle_sub);
     get_image_patch(img_weight, ui, vi, r, img_weight_sub);
