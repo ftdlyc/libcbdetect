@@ -36,7 +36,80 @@
 
 namespace cbdetect {
 
-void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &params) {
+void find_corners_reiszed(const cv::Mat &img, Corner &corners, const Params &params) {
+  cv::Mat img_resized, img_norm;
+  Corner corners_resized;
+
+  // resize image
+  double scale = 0;
+  if (img.rows < 640 || img.cols < 480) {
+    scale = 2.0;
+  } else if (img.rows >= 640 || img.cols >= 480) {
+    scale = 0.5;
+  } else {
+    return;
+  }
+  cv::resize(img, img_resized, cv::Size(img.cols * scale, img.rows * scale), 0, 0, cv::INTER_LINEAR);
+
+  if (img_resized.channels() == 3) {
+    cv::cvtColor(img_resized, img_norm, CV_BGRA2GRAY);
+    img_norm.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
+  } else {
+    img_resized.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
+  }
+
+  // normalize image and calculate gradients
+  cv::Mat img_du, img_dv, img_angle, img_weight;
+  image_normalization_and_gradients(img_norm, img_du, img_dv, img_angle, img_weight, params);
+  if (params.show_debug_image && params.norm) {
+    cv::Mat img_show;
+    img_norm.convertTo(img_show, CV_8U, 255, 0);
+    cv::imshow("norm image resized", img_show);
+    cv::waitKey();
+  }
+
+  // get corner's initial locaiton
+  get_init_location(img_norm, img_du, img_dv, corners_resized, params);
+  if (corners_resized.p.empty()) { return; }
+  if (params.show_processing) {
+    printf("Initializing conres (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners_resized.p.size());
+  }
+  if (params.show_debug_image) { plot_corners(img_resized, corners_resized.p, "init location resized"); }
+
+  // pre-filter corners according to zero crossings
+  filter_corners(img_norm, img_angle, img_weight, corners_resized, params);
+  if (params.show_processing) {
+    printf("Filtering corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners_resized.p.size());
+  }
+  if (params.show_debug_image) { plot_corners(img_resized, corners_resized.p, "filter corners resized"); }
+
+  // merge corners
+  std::for_each(corners_resized.p.begin(), corners_resized.p.end(), [&scale](auto &p) { p /= scale; });
+  // std::for_each(corners_resized.r.begin(), corners_resized.r.end(), [&scale](auto &r) { r = (double) r / scale; });
+  for (int i = 0; i < corners_resized.p.size(); ++i) {
+    double min_dist = DBL_MAX;
+    cv::Point2d &p2 = corners_resized.p[i];
+    for (int j = 0; j < corners.p.size(); ++j) {
+      cv::Point2d &p1 = corners.p[j];
+      double dist = cv::norm(p2 - p1);
+      min_dist = dist < min_dist ? dist : min_dist;
+    }
+    if (min_dist > 5) {
+      corners.p.emplace_back(corners_resized.p[i]);
+      corners.r.emplace_back(corners_resized.r[i]);
+    }
+  }
+}
+
+void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
+  // clear old data
+  corners.p.clear();
+  corners.r.clear();
+  corners.v1.clear();
+  corners.v2.clear();
+  corners.v3.clear();
+  corners.score.clear();
+
   // convert to double grayscale image
   cv::Mat img_norm;
   if (img.channels() == 3) {
@@ -52,16 +125,15 @@ void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &pa
   if (params.show_debug_image && params.norm) {
     cv::Mat img_show;
     img_norm.convertTo(img_show, CV_8U, 255, 0);
-    cv::imshow("norm image ", img_show);
+    cv::imshow("norm image", img_show);
     cv::waitKey();
   }
 
   // get corner's initial locaiton
   get_init_location(img_norm, img_du, img_dv, corners, params);
-
   if (corners.p.empty()) { return; }
   if (params.show_processing) {
-    printf("Filtering image (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+    printf("Initializing conres (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
   }
   if (params.show_debug_image) { plot_corners(img, corners.p, "init location"); }
 
@@ -71,6 +143,13 @@ void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &pa
     printf("Filtering corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
   }
   if (params.show_debug_image) { plot_corners(img, corners.p, "filter corners"); }
+
+  // resize image to detect more corners
+  find_corners_reiszed(img, corners, params);
+  if (params.show_processing) {
+    printf("Merging corners (%d x %d) ... %lu\n", img.cols, img.rows, corners.p.size());
+  }
+  if (params.show_debug_image) { plot_corners(img, corners.p, "merge corners"); }
 
   // refinement
   refine_corners(img_du, img_dv, img_angle, img_weight, corners, params);
@@ -95,46 +174,6 @@ void find_corners_in_image(const cv::Mat &img, Corner &corners, const Params &pa
     printf("Scoring corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
   }
   if (params.show_debug_image) { plot_corners(img, corners.p, "scoring corners"); }
-}
-
-void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
-  cv::Mat img_resized;
-  cv::resize(img, img_resized, cv::Size(img.cols / 2, img.rows / 2), 0, 0, cv::INTER_LINEAR);
-  Corner corners_1, corners_2;
-  find_corners_in_image(img, corners_1, params);
-  Params params_resize = params;
-  params_resize.norm_half_kernel_size = params.norm_half_kernel_size / 2;
-  params_resize.polynomial_fit_half_kernel_size = std::max(2, params.polynomial_fit_half_kernel_size / 2);
-  find_corners_in_image(img_resized, corners_2, params_resize);
-  std::for_each(corners_2.p.begin(), corners_2.p.end(), [](auto &p) { p *= 2; });
-
-  int n_1 = corners_1.p.size();
-  corners.p = std::move(corners_1.p);
-  corners.r = std::move(corners_1.r);
-  corners.v1 = std::move(corners_1.v1);
-  corners.v2 = std::move(corners_1.v2);
-  corners.v3 = std::move(corners_1.v3);
-  corners.score = std::move(corners_1.score);
-  for (int i = 0; i < corners_2.p.size(); ++i) {
-    double min_dist = DBL_MAX;
-    cv::Point2d &p2 = corners_2.p[i];
-    for (int j = 0; j < n_1; ++j) {
-      cv::Point2d &p1 = corners.p[j];
-      double dist = cv::norm(p2 - p1);
-      min_dist = dist < min_dist ? dist : min_dist;
-    }
-    if (min_dist > 5) {
-      corners.p.emplace_back(corners_2.p[i]);
-      corners.r.emplace_back(corners_2.r[i]);
-      corners.v1.emplace_back(corners_2.v1[i]);
-      corners.v2.emplace_back(corners_2.v2[i]);
-      if (!corners_2.v3.empty()) { corners.v3.emplace_back(corners_2.v3[i]); }
-      corners.score.emplace_back(corners_2.score[i]);
-    }
-  }
-
-  // sort corner by y and x
-  if (params.show_processing) { printf("Total find corners ... %lu\n", corners.p.size()); }
 }
 
 }
