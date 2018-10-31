@@ -114,6 +114,7 @@ void hessian_response(const cv::Mat &img_in, cv::Mat &img_out) {
         in++;
         out++;
       }
+      out += 2;
     }
   });
 }
