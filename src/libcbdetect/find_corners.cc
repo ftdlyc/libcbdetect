@@ -83,9 +83,17 @@ void find_corners_reiszed(const cv::Mat &img, Corner &corners, const Params &par
   }
   if (params.show_debug_image) { plot_corners(img_resized, corners_resized.p, "filter corners resized"); }
 
+  // refinement
+  refine_corners(img_du, img_dv, img_angle, img_weight, corners_resized, params);
+  if (params.show_processing) {
+    printf("Refining corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners_resized.p.size());
+  }
+  if (params.show_debug_image) { plot_corners(img_resized, corners_resized.p, "refine corners resized"); }
+
   // merge corners
   std::for_each(corners_resized.p.begin(), corners_resized.p.end(), [&scale](auto &p) { p /= scale; });
   // std::for_each(corners_resized.r.begin(), corners_resized.r.end(), [&scale](auto &r) { r = (double) r / scale; });
+  double min_dist_thr = scale > 1 ? 3 : 5;
   for (int i = 0; i < corners_resized.p.size(); ++i) {
     double min_dist = DBL_MAX;
     cv::Point2d &p2 = corners_resized.p[i];
@@ -94,9 +102,12 @@ void find_corners_reiszed(const cv::Mat &img, Corner &corners, const Params &par
       double dist = cv::norm(p2 - p1);
       min_dist = dist < min_dist ? dist : min_dist;
     }
-    if (min_dist > 5) {
+    if (min_dist > min_dist_thr) {
       corners.p.emplace_back(corners_resized.p[i]);
       corners.r.emplace_back(corners_resized.r[i]);
+      corners.v1.emplace_back(corners_resized.v1[i]);
+      corners.v2.emplace_back(corners_resized.v2[i]);
+      if (params.corner_type == MonkeySaddlePoint) { corners.v2.emplace_back(corners_resized.v3[i]); }
     }
   }
 }
@@ -144,6 +155,13 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   }
   if (params.show_debug_image) { plot_corners(img, corners.p, "filter corners"); }
 
+  // refinement
+  refine_corners(img_du, img_dv, img_angle, img_weight, corners, params);
+  if (params.show_processing) {
+    printf("Refining corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+  }
+  if (params.show_debug_image) { plot_corners(img, corners.p, "refine corners"); }
+
   // resize image to detect more corners
   find_corners_reiszed(img, corners, params);
   if (params.show_processing) {
@@ -151,16 +169,14 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   }
   if (params.show_debug_image) { plot_corners(img, corners.p, "merge corners"); }
 
-  // refinement
-  refine_corners(img_du, img_dv, img_angle, img_weight, corners, params);
   // polynomial fit
   if (params.polynomial_fit) {
     polynomial_fit(img_norm, corners, params);
+    if (params.show_processing) {
+      printf("Polyfitting corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
+    }
+    if (params.show_debug_image) { plot_corners(img, corners.p, "polynomial fit corners"); }
   }
-  if (params.show_processing) {
-    printf("Refining corners (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
-  }
-  if (params.show_debug_image) { plot_corners(img, corners.p, "refine corners"); }
 
   // score corners
   sorce_corners(img_norm, img_weight, corners, params);
