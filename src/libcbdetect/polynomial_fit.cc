@@ -62,6 +62,7 @@ void polynomial_fit_saddle(const cv::Mat &img, int r, Corner &corners) {
 
   std::vector<cv::Point2d> corners_out_p, corners_out_v1, corners_out_v2;
   std::vector<int> corners_out_r;
+  std::vector<int> choose(corners.p.size(), 0);
 
   // cone filter
   cv::Mat blur_kernel, blur_img, mask;
@@ -87,54 +88,62 @@ void polynomial_fit_saddle(const cv::Mat &img, int r, Corner &corners) {
   cv::Mat invAtAAt = (A.t() * A).inv(cv::DECOMP_SVD) * A.t();
 
   // for all corners do
-  for (int i = 0; i < corners.p.size(); ++i) {
-    double u_init = corners.p[i].x;
-    double v_init = corners.p[i].y;
-    double u_cur = u_init, v_cur = v_init;
-    bool is_saddle_point = true;
+  cv::parallel_for_(cv::Range(0, corners.p.size()), [&](const cv::Range &range) -> void {
+    for (int i = range.start; i < range.end; ++i) {
+      double u_init = corners.p[i].x;
+      double v_init = corners.p[i].y;
+      double u_cur = u_init, v_cur = v_init;
+      bool is_saddle_point = true;
 
-    // fit f(x, y) = k0 * x^2 + k1 * y^2 + k2 * x * y + k3 * x + k4 * y + k5
-    // coef: [k0; k1; k2; k3; k4; k5]
-    for (int num_it = 0; num_it < max_iteration; ++num_it) {
-      cv::Mat k, b;
-      if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) {
-        is_saddle_point = false;
-        break;
+      // fit f(x, y) = k0 * x^2 + k1 * y^2 + k2 * x * y + k3 * x + k4 * y + k5
+      // coef: [k0; k1; k2; k3; k4; k5]
+      for (int num_it = 0; num_it < max_iteration; ++num_it) {
+        cv::Mat k, b;
+        if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) {
+          is_saddle_point = false;
+          break;
+        }
+        get_image_patch_with_mask(blur_img, mask, u_cur, v_cur, r, b);
+        k = invAtAAt * b;
+
+        // check if it is still a saddle point
+        double det = 4 * k.at<double>(0, 0) * k.at<double>(1, 0) - k.at<double>(2, 0) * k.at<double>(2, 0);
+        if (det > 0) {
+          is_saddle_point = false;
+          break;
+        }
+
+        // saddle point is the corner
+        double dx = (k.at<double>(2, 0) * k.at<double>(4, 0) - 2 * k.at<double>(1, 0) * k.at<double>(3, 0)) / det;
+        double dy = (k.at<double>(2, 0) * k.at<double>(3, 0) - 2 * k.at<double>(0, 0) * k.at<double>(4, 0)) / det;
+
+        u_cur += dx;
+        v_cur += dy;
+
+        double dist = std::sqrt((u_cur - u_init) * (u_cur - u_init) + (v_cur - v_init) * (v_cur - v_init));
+        if (dist > r) {
+          is_saddle_point = false;
+          break;
+        }
+        if (std::sqrt(dx * dx + dy * dy) <= eps) { break; }
       }
-      get_image_patch_with_mask(blur_img, mask, u_cur, v_cur, r, b);
-      k = invAtAAt * b;
 
-      // check if it is still a saddle point
-      double det = 4 * k.at<double>(0, 0) * k.at<double>(1, 0) - k.at<double>(2, 0) * k.at<double>(2, 0);
-      if (det > 0) {
-        is_saddle_point = false;
-        break;
+      // add to corners
+      if (is_saddle_point) {
+        choose[i] = 1;
+        corners.p[i] = cv::Point2d(u_cur, v_cur);
       }
-
-      // saddle point is the corner
-      double dx = (k.at<double>(2, 0) * k.at<double>(4, 0) - 2 * k.at<double>(1, 0) * k.at<double>(3, 0)) / det;
-      double dy = (k.at<double>(2, 0) * k.at<double>(3, 0) - 2 * k.at<double>(0, 0) * k.at<double>(4, 0)) / det;
-
-      u_cur += dx;
-      v_cur += dy;
-
-      double dist = std::sqrt((u_cur - u_init) * (u_cur - u_init) + (v_cur - v_init) * (v_cur - v_init));
-      if (dist > r) {
-        is_saddle_point = false;
-        break;
-      }
-      if (std::sqrt(dx * dx + dy * dy) <= eps) { break; }
     }
+  });
 
-    // add to corners
-    if (is_saddle_point) {
-      corners_out_p.emplace_back(cv::Point2d(u_cur, v_cur));
+  for (int i = 0; i < corners.p.size(); ++i) {
+    if (choose[i] == 1) {
+      corners_out_p.emplace_back(corners.p[i]);
       corners_out_r.emplace_back(corners.r[i]);
       corners_out_v1.emplace_back(corners.v1[i]);
       corners_out_v2.emplace_back(corners.v2[i]);
     }
   }
-
   corners.p = std::move(corners_out_p);
   corners.r = std::move(corners_out_r);
   corners.v1 = std::move(corners_out_v1);
@@ -151,6 +160,7 @@ void polynomial_fit_monkey_saddle(const cv::Mat &img, int r, Corner &corners) {
 
   std::vector<cv::Point2d> corners_out_p, corners_out_v1, corners_out_v2, corners_out_v3;
   std::vector<int> corners_out_r;
+  std::vector<int> choose(corners.p.size(), 0);
 
   // cone filter
   cv::Mat blur_kernel, blur_img, mask;
@@ -180,61 +190,69 @@ void polynomial_fit_monkey_saddle(const cv::Mat &img, int r, Corner &corners) {
   cv::Mat invAtAAt = (A.t() * A).inv(cv::DECOMP_SVD) * A.t();
 
   // for all corners do
-  for (int i = 0; i < corners.p.size(); ++i) {
-    double u_init = corners.p[i].x;
-    double v_init = corners.p[i].y;
-    double u_cur = u_init, v_cur = v_init;
-    bool is_monkey_saddle = true;
+  cv::parallel_for_(cv::Range(0, corners.p.size()), [&](const cv::Range &range) -> void {
+    for (int i = range.start; i < range.end; ++i) {
+      double u_init = corners.p[i].x;
+      double v_init = corners.p[i].y;
+      double u_cur = u_init, v_cur = v_init;
+      bool is_monkey_saddle = true;
 
-    // fit f(x, y) = k0 * x^3 + k1 * x^2*y + k2* x*y^2 + k3 * y^3 + k4 * x^2 + k5 * x*y + k6 * y^2 + k7 * x + k8 * y + k9
-    // coef: [k0; k1; k2; k3; k4; k5; k6; k7; k8; k9]
-    for (int num_it = 0; num_it < max_iteration; ++num_it) {
-      cv::Mat k, b;
-      if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) {
-        is_monkey_saddle = false;
-        break;
+      // fit f(x, y) = k0 * x^3 + k1 * x^2*y + k2* x*y^2 + k3 * y^3 + k4 * x^2 + k5 * x*y + k6 * y^2 + k7 * x + k8 * y + k9
+      // coef: [k0; k1; k2; k3; k4; k5; k6; k7; k8; k9]
+      for (int num_it = 0; num_it < max_iteration; ++num_it) {
+        cv::Mat k, b;
+        if (u_cur - r < 0 || u_cur + r >= width - 1 || v_cur - r < 0 || v_cur + r >= height - 1) {
+          is_monkey_saddle = false;
+          break;
+        }
+        get_image_patch_with_mask(blur_img, mask, u_cur, v_cur, r, b);
+        k = invAtAAt * b;
+
+        // check if it is still a monkey saddle point
+        double det = 3 * (k.at<double>(0, 0) * k.at<double>(2, 0) + k.at<double>(1, 0) * k.at<double>(3, 0)) -
+            (k.at<double>(1, 0) * k.at<double>(1, 0) + k.at<double>(2, 0) * k.at<double>(2, 0));
+        if (det > 0) {
+          is_monkey_saddle = false;
+          break;
+        }
+
+        // the monkey saddle point is a degenerate critical point where all of its second derivatives are zero
+        cv::Mat tmp_a = (cv::Mat_<double>(3, 2) << 3.0 * k.at<double>(0, 0), k.at<double>(1, 0),
+            2.0 * k.at<double>(1, 0), 2.0 * k.at<double>(2, 0),
+            k.at<double>(2, 0), 3.0 * k.at<double>(3, 0));
+        cv::Mat tmp_b = (cv::Mat_<double>(3, 1) << -k.at<double>(4, 0), -k.at<double>(5, 0), -k.at<double>(6, 0));
+        cv::Mat tmp_x = (tmp_a.t() * tmp_a).inv() * tmp_a.t() * tmp_b;
+        double dx = tmp_x.at<double>(0, 0);
+        double dy = tmp_x.at<double>(1, 0);
+
+        u_cur += dx;
+        v_cur += dy;
+
+        double dist = std::sqrt((u_cur - u_init) * (u_cur - u_init) + (v_cur - v_init) * (v_cur - v_init));
+        if (dist > r) {
+          is_monkey_saddle = false;
+          break;
+        }
+        if (std::sqrt(dx * dx + dy * dy) <= eps) { break; }
       }
-      get_image_patch_with_mask(blur_img, mask, u_cur, v_cur, r, b);
-      k = invAtAAt * b;
 
-      // check if it is still a monkey saddle point
-      double det = 3 * (k.at<double>(0, 0) * k.at<double>(2, 0) + k.at<double>(1, 0) * k.at<double>(3, 0)) -
-          (k.at<double>(1, 0) * k.at<double>(1, 0) + k.at<double>(2, 0) * k.at<double>(2, 0));
-      if (det > 0) {
-        is_monkey_saddle = false;
-        break;
+      // add to corners
+      if (is_monkey_saddle) {
+        choose[i] = 1;
+        corners.p[i] = cv::Point2d(u_cur, v_cur);
       }
-
-      // the monkey saddle point is a degenerate critical point where all of its second derivatives are zero
-      cv::Mat tmp_a = (cv::Mat_<double>(3, 2) << 3.0 * k.at<double>(0, 0), k.at<double>(1, 0),
-          2.0 * k.at<double>(1, 0), 2.0 * k.at<double>(2, 0),
-          k.at<double>(2, 0), 3.0 * k.at<double>(3, 0));
-      cv::Mat tmp_b = (cv::Mat_<double>(3, 1) << -k.at<double>(4, 0), -k.at<double>(5, 0), -k.at<double>(6, 0));
-      cv::Mat tmp_x = (tmp_a.t() * tmp_a).inv() * tmp_a.t() * tmp_b;
-      double dx = tmp_x.at<double>(0, 0);
-      double dy = tmp_x.at<double>(1, 0);
-
-      u_cur += dx;
-      v_cur += dy;
-
-      double dist = std::sqrt((u_cur - u_init) * (u_cur - u_init) + (v_cur - v_init) * (v_cur - v_init));
-      if (dist > r) {
-        is_monkey_saddle = false;
-        break;
-      }
-      if (std::sqrt(dx * dx + dy * dy) <= eps) { break; }
     }
+  });
 
-    // add to corners
-    if (is_monkey_saddle) {
-      corners_out_p.emplace_back(cv::Point2d(u_cur, v_cur));
+  for (int i = 0; i < corners.p.size(); ++i) {
+    if (choose[i] == 1) {
+      corners_out_p.emplace_back(corners.p[i]);
       corners_out_r.emplace_back(corners.r[i]);
       corners_out_v1.emplace_back(corners.v1[i]);
       corners_out_v2.emplace_back(corners.v2[i]);
       corners_out_v3.emplace_back(corners.v3[i]);
     }
   }
-
   corners.p = std::move(corners_out_p);
   corners.r = std::move(corners_out_r);
   corners.v1 = std::move(corners_out_v1);

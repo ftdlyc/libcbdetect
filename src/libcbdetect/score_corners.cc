@@ -163,26 +163,29 @@ void sorce_corners(const cv::Mat &img, const cv::Mat &img_weight, Corner &corner
   auto mask = weight_mask(params.radius);
 
   // for all corners do
-  for (int i = 0; i < corners.p.size(); ++i) {
-    // corner location
-    double u = corners.p[i].x;
-    double v = corners.p[i].y;
-    int r = corners.r[i];
+  cv::parallel_for_(cv::Range(0, corners.p.size()), [&](const cv::Range &range) -> void {
+    for (int i = range.start; i < range.end; ++i) {
+      // corner location
+      double u = corners.p[i].x;
+      double v = corners.p[i].y;
+      int r = corners.r[i];
 
-    if (u - r < 0 || u + r >= width - 1 || v - r < 0 || v + r >= height - 1) {
-      corners.score[i] = 0.;
-      continue;
+      if (u - r < 0 || u + r >= width - 1 || v - r < 0 || v + r >= height - 1) {
+        corners.score[i] = 0.;
+        continue;
+      }
+      cv::Mat img_sub, img_weight_sub;
+      get_image_patch(img, u, v, r, img_sub);
+      get_image_patch(img_weight, u, v, r, img_weight_sub);
+      img_weight_sub = img_weight_sub.mul(mask[r]);
+      if (params.corner_type == SaddlePoint) {
+        corners.score[i] = corner_correlation_score(img_sub, img_weight_sub, corners.v1[i], corners.v2[i]);
+      } else if (params.corner_type == MonkeySaddlePoint) {
+        corners.score[i] =
+            corner_correlation_score(img_sub, img_weight_sub, corners.v1[i], corners.v2[i], corners.v3[i]);
+      }
     }
-    cv::Mat img_sub, img_weight_sub;
-    get_image_patch(img, u, v, r, img_sub);
-    get_image_patch(img_weight, u, v, r, img_weight_sub);
-    img_weight_sub = img_weight_sub.mul(mask[r]);
-    if (params.corner_type == SaddlePoint) {
-      corners.score[i] = corner_correlation_score(img_sub, img_weight_sub, corners.v1[i], corners.v2[i]);
-    } else if (params.corner_type == MonkeySaddlePoint) {
-      corners.score[i] = corner_correlation_score(img_sub, img_weight_sub, corners.v1[i], corners.v2[i], corners.v3[i]);
-    }
-  }
+  });
 }
 
 void remove_low_scoring_corners(double tau, Corner &corners, const Params &params) {

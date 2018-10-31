@@ -72,50 +72,50 @@ void hessian_response(const cv::Mat &img_in, cv::Mat &img_out) {
   // allocate output
   img_out = cv::Mat::zeros(rows, cols, CV_64F);
 
-  // setup input and output pointer to be centered at 1,0 and 1,1 resp.
-  auto *in = img_in.ptr<double>(1);
-  auto *out = img_out.ptr<double>(1) + 1;
+  cv::parallel_for_(cv::Range(1, rows - 1), [&img_in, &img_out, &stride, &cols](const cv::Range &range) -> void {
+    // setup input and output pointer to be centered at 1,0 and 1,1 resp.
+    auto *in = img_in.ptr<double>(range.start);
+    auto *out = img_out.ptr<double>(range.start) + 1;
 
-  /* move 3x3 window and convolve */
-  for (int r = 1; r < rows - 1; ++r) {
-    double v11, v12, v21, v22, v31, v32;
-    /* fill in shift registers at the beginning of the row */
-    v11 = in[-stride];
-    v12 = in[1 - stride];
-    v21 = in[0];
-    v22 = in[1];
-    v31 = in[+stride];
-    v32 = in[1 + stride];
-    /* move input pointer to (1,2) of the 3x3 square */
-    in += 2;
-    for (int c = 1; c < cols - 1; ++c) {
-      /* fetch remaining values (last column) */
-      const double v13 = in[-stride];
-      const double v23 = *in;
-      const double v33 = in[+stride];
+    for (int i = range.start; i < range.end; ++i) {
+      double v11, v12, v21, v22, v31, v32;
+      /* fill in shift registers at the beginning of the row */
+      v11 = in[-stride];
+      v12 = in[1 - stride];
+      v21 = in[0];
+      v22 = in[1];
+      v31 = in[+stride];
+      v32 = in[1 + stride];
+      /* move input pointer to (1,2) of the 3x3 square */
+      in += 2;
+      for (int c = 1; c < cols - 1; ++c) {
+        /* fetch remaining values (last column) */
+        const double v13 = in[-stride];
+        const double v23 = *in;
+        const double v33 = in[+stride];
 
-      // compute 3x3 Hessian values from symmetric differences.
-      double Lxx = (v21 - 2 * v22 + v23);
-      double Lyy = (v12 - 2 * v22 + v32);
-      double Lxy = (v13 - v11 + v31 - v33) / 4.0f;
+        // compute 3x3 Hessian values from symmetric differences.
+        double Lxx = (v21 - 2 * v22 + v23);
+        double Lyy = (v12 - 2 * v22 + v32);
+        double Lxy = (v13 - v11 + v31 - v33) / 4.;
 
-      /* normalize and write out */
-      *out = Lxx * Lyy - Lxy * Lxy;
+        /* normalize and write out */
+        *out = Lxx * Lyy - Lxy * Lxy;
 
-      /* move window */
-      v11 = v12;
-      v12 = v13;
-      v21 = v22;
-      v22 = v23;
-      v31 = v32;
-      v32 = v33;
+        /* move window */
+        v11 = v12;
+        v12 = v13;
+        v21 = v22;
+        v22 = v23;
+        v31 = v32;
+        v32 = v33;
 
-      /* move input/output pointers */
-      in++;
-      out++;
+        /* move input/output pointers */
+        in++;
+        out++;
+      }
     }
-    out += 2;
-  }
+  });
 }
 
 void rotate_image(const cv::Mat &img_in, double angle, cv::Mat &img_out, cv::Size out_size = cv::Size()) {
@@ -125,8 +125,8 @@ void rotate_image(const cv::Mat &img_in, double angle, cv::Mat &img_out, cv::Siz
   }
 
   // cal new width and height
-  double in_center_u = (img_in.cols - 1) / 2.0;
-  double in_center_v = (img_in.rows - 1) / 2.0;
+  double in_center_u = (img_in.cols - 1) / 2.;
+  double in_center_v = (img_in.rows - 1) / 2.;
   if (out_size.empty()) {
     cv::Point2i tl(std::round(-in_center_u * std::cos(angle) - in_center_v * std::sin(angle)),
                    std::round(in_center_u * std::sin(angle) - in_center_v * std::cos(angle)));
@@ -142,8 +142,8 @@ void rotate_image(const cv::Mat &img_in, double angle, cv::Mat &img_out, cv::Siz
       out_size = cv::Size(std::abs(tl.x - br.x) + 1, std::abs(tr.y - bl.y) + 1);
     }
   }
-  double out_center_u = (out_size.width - 1) / 2.0;
-  double out_center_v = (out_size.height - 1) / 2.0;
+  double out_center_u = (out_size.width - 1) / 2.;
+  double out_center_v = (out_size.height - 1) / 2.;
 
 //  // rotate image
 //  img_out.create(height, width, CV_64F);
@@ -181,13 +181,15 @@ void rotate_image(const cv::Mat &img_in, double angle, cv::Mat &img_out, cv::Siz
 
 // paper: Accurate Detection and Localization of Checkerboard Corners for Calibration
 void localized_radon_transform(const cv::Mat &img_in, cv::Mat &img_out) {
-  std::vector<double> angles = {0, M_PI / 4, M_PI / 2, 3 * M_PI / 4};
-  std::vector<cv::Mat> rb_imgs(4, cv::Mat(img_in.size(), img_in.type()));
-  for (int i = 0; i < 4; ++i) {
-    cv::Mat r_img, blur_img;
+  std::vector<double> angles = {0, M_PI / 4};
+  std::vector<cv::Mat> rb_imgs(4);
+  for (int i = 0; i < 2; ++i) {
+    cv::Mat r_img, u_img, v_img;
     rotate_image(img_in, -angles[i], r_img);
-    box_filter(r_img, blur_img, 4, 0);
-    rotate_image(blur_img, angles[i], rb_imgs[i], img_in.size());
+    cv::blur(r_img, u_img, cv::Size(11, 3));
+    cv::blur(r_img, v_img, cv::Size(3, 11));
+    rotate_image(u_img, angles[i], rb_imgs[2 * i], img_in.size());
+    rotate_image(v_img, angles[i], rb_imgs[2 * i + 1], img_in.size());
   }
   cv::Mat max_img_1 = cv::max(rb_imgs[0], rb_imgs[1]);
   cv::Mat max_img_2 = cv::max(rb_imgs[2], rb_imgs[3]);
@@ -286,46 +288,48 @@ void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat 
 
   // location refinement
   int width = img.cols, height = img.rows;
-  for (int i = 0; i < corners.p.size(); ++i) {
-    double u = corners.p[i].x;
-    double v = corners.p[i].y;
-    int r = corners.r[i];
+  cv::parallel_for_(cv::Range(0, corners.p.size()), [&](const cv::Range &range) -> void {
+    for (int i = range.start; i < range.end; ++i) {
+      double u = corners.p[i].x;
+      double v = corners.p[i].y;
+      int r = corners.r[i];
 
-    cv::Mat G = cv::Mat::zeros(2, 2, CV_64F);
-    cv::Mat b = cv::Mat::zeros(2, 1, CV_64F);
+      cv::Mat G = cv::Mat::zeros(2, 2, CV_64F);
+      cv::Mat b = cv::Mat::zeros(2, 1, CV_64F);
 
-    // get subpixel gradiant
-    cv::Mat img_du_sub, img_dv_sub;
-    if (u - r < 0 || u + r >= width - 1 || v - r < 0 || v + r >= height - 1) { break; }
-    get_image_patch(img_du, u, v, r, img_du_sub);
-    get_image_patch(img_dv, u, v, r, img_dv_sub);
+      // get subpixel gradiant
+      cv::Mat img_du_sub, img_dv_sub;
+      if (u - r < 0 || u + r >= width - 1 || v - r < 0 || v + r >= height - 1) { break; }
+      get_image_patch(img_du, u, v, r, img_du_sub);
+      get_image_patch(img_dv, u, v, r, img_dv_sub);
 
-    for (int j2 = 0; j2 < 2 * r + 1; ++j2) {
-      for (int i2 = 0; i2 < 2 * r + 1; ++i2) {
-        // pixel orientation vector
-        double o_du = img_du_sub.at<double>(j2, i2);
-        double o_dv = img_dv_sub.at<double>(j2, i2);
-        double o_norm = std::sqrt(o_du * o_du + o_dv * o_dv);
-        if (o_norm < 0.1) { continue; }
+      for (int j2 = 0; j2 < 2 * r + 1; ++j2) {
+        for (int i2 = 0; i2 < 2 * r + 1; ++i2) {
+          // pixel orientation vector
+          double o_du = img_du_sub.at<double>(j2, i2);
+          double o_dv = img_dv_sub.at<double>(j2, i2);
+          double o_norm = std::sqrt(o_du * o_du + o_dv * o_dv);
+          if (o_norm < 0.1) { continue; }
 
-        // do not consider center pixel
-        if (i2 == r && j2 == r) { continue; }
-        G.at<double>(0, 0) += o_du * o_du;
-        G.at<double>(0, 1) += o_du * o_dv;
-        G.at<double>(1, 0) += o_du * o_dv;
-        G.at<double>(1, 1) += o_dv * o_dv;
-        b.at<double>(0, 0) += o_du * o_du * (i2 - r + u) + o_du * o_dv * (j2 - r + v);
-        b.at<double>(1, 0) += o_du * o_dv * (i2 - r + u) + o_dv * o_dv * (j2 - r + v);
+          // do not consider center pixel
+          if (i2 == r && j2 == r) { continue; }
+          G.at<double>(0, 0) += o_du * o_du;
+          G.at<double>(0, 1) += o_du * o_dv;
+          G.at<double>(1, 0) += o_du * o_dv;
+          G.at<double>(1, 1) += o_dv * o_dv;
+          b.at<double>(0, 0) += o_du * o_du * (i2 - r + u) + o_du * o_dv * (j2 - r + v);
+          b.at<double>(1, 0) += o_du * o_dv * (i2 - r + u) + o_dv * o_dv * (j2 - r + v);
+        }
+      }
+
+      cv::Mat new_pos = G.inv() * b;
+      if (std::abs(new_pos.at<double>(0, 0) - corners.p[i].x) +
+          std::abs(new_pos.at<double>(1, 0) - corners.p[i].y) < corners.r[i] * 2) {
+        corners.p[i].x = new_pos.at<double>(0, 0);
+        corners.p[i].y = new_pos.at<double>(1, 0);
       }
     }
-
-    cv::Mat new_pos = G.inv() * b;
-    if (std::abs(new_pos.at<double>(0, 0) - corners.p[i].x) +
-        std::abs(new_pos.at<double>(1, 0) - corners.p[i].y) < corners.r[i] * 2) {
-      corners.p[i].x = new_pos.at<double>(0, 0);
-      corners.p[i].y = new_pos.at<double>(1, 0);
-    }
-  }
+  });
 }
 
 }

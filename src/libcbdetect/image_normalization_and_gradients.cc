@@ -124,19 +124,17 @@ void image_normalization_and_gradients(cv::Mat &img, cv::Mat &img_du, cv::Mat &i
     cv::Mat tmp = img_weight.clone();
     std::swap(tmp, img_weight);
   }
-  auto img_du_data = (double *) img_du.data;
-  auto img_dv_data = (double *) img_dv.data;
-  auto img_angle_data = (double *) img_angle.data;
-  auto img_weight_data = (double *) img_weight.data;
   cv::hal::fastAtan64f((const double *) img_dv.data, (const double *) img_du.data,
                        (double *) img_angle.data, img.rows * img.cols, false);
-  for (int i = 0; i < img.rows * img.cols; ++i) {
-    // correct angle to lie in between [0, M_PI]
-    img_angle_data[i] = img_angle_data[i] >= M_PI ? img_angle_data[i] - M_PI : img_angle_data[i];
-  }
-  for (int i = 0; i < img.rows * img.cols; ++i) {
-    img_weight_data[i] = std::sqrt(img_du_data[i] * img_du_data[i] + img_dv_data[i] * img_dv_data[i]);
-  }
+  img_angle.forEach<double>([](double &pixel, const int *pos) -> void {
+    pixel = pixel >= M_PI ? pixel - M_PI : pixel;
+  });
+  img_weight.forEach<double>([&img_du, &img_dv](double &pixel, const int *pos) -> void {
+    int u = pos[1];
+    int v = pos[0];
+    pixel = std::sqrt(
+        img_du.at<double>(v, u) * img_du.at<double>(v, u) + img_dv.at<double>(v, u) * img_dv.at<double>(v, u));
+  });
 
   // scale input image
   double img_min = 0, img_max = 1;

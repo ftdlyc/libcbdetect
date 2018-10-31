@@ -125,9 +125,9 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   cv::Mat img_norm;
   if (img.channels() == 3) {
     cv::cvtColor(img, img_norm, CV_BGRA2GRAY);
-    img_norm.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
+    img_norm.convertTo(img_norm, CV_64F, 1. / 255., 0);
   } else {
-    img.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
+    img.convertTo(img_norm, CV_64F, 1. / 255., 0);
   }
 
   // normalize image and calculate gradients
@@ -135,7 +135,7 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
   image_normalization_and_gradients(img_norm, img_du, img_dv, img_angle, img_weight, params);
   if (params.show_debug_image && params.norm) {
     cv::Mat img_show;
-    img_norm.convertTo(img_show, CV_8U, 255, 0);
+    img_norm.convertTo(img_show, CV_8U, 255., 0);
     cv::imshow("norm image", img_show);
     cv::waitKey();
   }
