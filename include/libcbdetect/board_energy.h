@@ -34,17 +34,16 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-
-#ifndef LIBCBDETECT_CHESSBOARD_ENERGY_H
-#define LIBCBDETECT_CHESSBOARD_ENERGY_H
+#ifndef LIBCBDETECT_BOARD_ENERGY_H
+#define LIBCBDETECT_BOARD_ENERGY_H
 
 #include <vector>
 #include "config.h"
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL double chessboard_energy(const Corner &corners, const std::vector<std::vector<int>> &chessboard);
+LIBCBDETECT_DLL_DECL cv::Point3i board_energy(const Corner &corners, Board &board, const Params &params);
 
 }
 
-#endif //LIBCBDETECT_CHESSBOARD_ENERGY_H
+#endif //LIBCBDETECT_BOARD_ENERGY_H

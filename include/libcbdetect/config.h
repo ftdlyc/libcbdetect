@@ -87,7 +87,7 @@ typedef struct Params {
   int polynomial_fit_half_kernel_size;
   double init_loc_thr;
   double score_thr;
-  DetectMethod detct_method;
+  DetectMethod detect_method;
   CornerType corner_type;
   std::vector<int> radius;
 
@@ -101,7 +101,7 @@ typedef struct Params {
       polynomial_fit_half_kernel_size(4),
       init_loc_thr(0.01),
       score_thr(0.01),
-      detct_method(HessianResponse),
+      detect_method(HessianResponse),
       corner_type(SaddlePoint),
       radius({5, 7}) {}
 } Params;
@@ -115,13 +115,13 @@ typedef struct Corner {
   std::vector<double> score;
 } Corner;
 
-typedef struct Deltille {
+typedef struct Board {
   std::vector<std::vector<int>> idx;
   std::vector<std::vector<std::vector<double>>> energy;
   int num;
 
-  Deltille() : num(0) {}
-} Deltille;
+  Board() : num(0) {}
+} Board;
 
 }
 

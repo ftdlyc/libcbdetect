@@ -1,4 +1,19 @@
-// c++ version by ftdlyc
+/**
+* Copyright 2018, ftdlyc <yclu.cn@gmail.com>
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 3 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, see <http://www.gnu.org/licenses/>.
+*/
 
 /*
 % Copyright 2012. All rights reserved.
@@ -18,17 +33,17 @@
 % this software; if not, write to the Free Software Foundation, Inc., 51 Franklin
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
-#ifndef LIBCBDETECT_INIT_CHESSBOARD_H
-#define LIBCBDETECT_INIT_CHESSBOARD_H
+
+#ifndef LIBCBDETECT_INIT_BOARD_H
+#define LIBCBDETECT_INIT_BOARD_H
 
 #include <vector>
 #include "config.h"
-#include "find_corners.h"
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void init_chessboard(const Corner &corners, int idx, std::vector<std::vector<int>> &chessboard);
+LIBCBDETECT_DLL_DECL bool init_board(const Corner &corners, std::vector<int> &used, Board &board, int idx);
 
 }
 
-#endif //LIBCBDETECT_INIT_CHESSBOARD_H
+#endif //LIBCBDETECT_INIT_BOARD_H

@@ -15,16 +15,18 @@
 * License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIBCBDETECT_INIT_DELTILLE_H
-#define LIBCBDETECT_INIT_DELTILLE_H
+#ifndef LIBCBDETECT_FILTER_BOARD_H
+#define LIBCBDETECT_FILTER_BOARD_H
 
 #include <vector>
+#include <opencv2/opencv.hpp>
 #include "config.h"
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL bool init_deltille(const Corner &corners, int idx, Deltille &deltille);
+LIBCBDETECT_DLL_DECL void filter_board(const Corner &corners, std::vector<int> &used, Board &board,
+                                       std::vector<cv::Point2i> &proposal, double &energy, const Params &params);
 
 }
 
-#endif //LIBCBDETECT_INIT_DELTILLE_H
+#endif //LIBCBDETECT_FILTER_BOARD_H

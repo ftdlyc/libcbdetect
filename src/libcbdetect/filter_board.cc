@@ -15,48 +15,55 @@
 * License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "filter_deltille.h"
-#include <iterator>
+#include "filter_board.h"
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include "config.h"
-#include "deltille_energy.h"
+#include "board_energy.h"
 
 namespace cbdetect {
 
-double find_minE(const Deltille &deltille, const cv::Point2i &p) {
-  double minE = std::min(std::min(deltille.energy[p.y][p.x][0], deltille.energy[p.y][p.x][1]),
-                         deltille.energy[p.y][p.x][2]);
+double find_minE(const Board &board, const cv::Point2i &p) {
+  double minE = std::min(std::min(board.energy[p.y][p.x][0], board.energy[p.y][p.x][1]),
+                         board.energy[p.y][p.x][2]);
   if (p.x - 1 >= 0) {
-    minE = std::min(minE, deltille.energy[p.y][p.x - 1][0]);
+    minE = std::min(minE, board.energy[p.y][p.x - 1][0]);
   }
   if (p.x - 1 >= 0 && p.y - 1 >= 0) {
-    minE = std::min(minE, deltille.energy[p.y - 1][p.x - 1][1]);
+    minE = std::min(minE, board.energy[p.y - 1][p.x - 1][1]);
   }
   if (p.y - 1 >= 0) {
-    minE = std::min(minE, deltille.energy[p.y - 1][p.x][2]);
+    minE = std::min(minE, board.energy[p.y - 1][p.x][2]);
   }
   if (p.x - 2 >= 0) {
-    minE = std::min(minE, deltille.energy[p.y][p.x - 2][0]);
+    minE = std::min(minE, board.energy[p.y][p.x - 2][0]);
   }
   if (p.x - 2 >= 0 && p.y - 2 >= 0) {
-    minE = std::min(minE, deltille.energy[p.y - 2][p.x - 2][1]);
+    minE = std::min(minE, board.energy[p.y - 2][p.x - 2][1]);
   }
   if (p.y - 2 >= 0) {
-    minE = std::min(minE, deltille.energy[p.y - 2][p.x][2]);
+    minE = std::min(minE, board.energy[p.y - 2][p.x][2]);
   }
   return minE;
 }
 
-void filter_deltille(const Corner &corners, std::vector<int> &used, Deltille &deltille,
-                     std::vector<cv::Point2i> &proposal, double &energy) {
+void filter_board(const Corner &corners, std::vector<int> &used, Board &board,
+                  std::vector<cv::Point2i> &proposal, double &energy, const Params &params) {
   // erase wrong corners
   while (!proposal.empty()) {
-    cv::Point3i maxE_pos = deltille_energy(corners, deltille);
-    double p_energy = deltille.energy[maxE_pos.y][maxE_pos.x][maxE_pos.z];
+    cv::Point3i maxE_pos = board_energy(corners, board, params);
+    double p_energy = board.energy[maxE_pos.y][maxE_pos.x][maxE_pos.z];
     if (p_energy <= energy) {
       energy = p_energy;
       break;
+    }
+    if (params.corner_type != MonkeySaddlePoint) {
+      for (const auto &p : proposal) {
+        used[board.idx[p.y][p.x]] = 0;
+        board.idx[p.y][p.x] = -2;
+        --board.num;
+      }
+      return;
     }
 
     // find the wrongest corner
@@ -81,9 +88,9 @@ void filter_deltille(const Corner &corners, std::vector<int> &used, Deltille &de
       default:break;
     }
     double minE_wrong[3];
-    minE_wrong[0] = find_minE(deltille, p[0]);
-    minE_wrong[1] = find_minE(deltille, p[1]);
-    minE_wrong[2] = find_minE(deltille, p[2]);
+    minE_wrong[0] = find_minE(board, p[0]);
+    minE_wrong[1] = find_minE(board, p[1]);
+    minE_wrong[2] = find_minE(board, p[2]);
 
     double minE = -DBL_MAX;
     int iter = 0;
@@ -109,11 +116,10 @@ void filter_deltille(const Corner &corners, std::vector<int> &used, Deltille &de
     }
 
     proposal.erase(proposal.begin() + iter);
-    used[deltille.idx[maxE_pos.y][maxE_pos.x]] = 0;
-    deltille.idx[maxE_pos.y][maxE_pos.x] = -2;
-    --deltille.num;
+    used[board.idx[maxE_pos.y][maxE_pos.x]] = 0;
+    board.idx[maxE_pos.y][maxE_pos.x] = -2;
+    --board.num;
   }
 }
 
 }
-

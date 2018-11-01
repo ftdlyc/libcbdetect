@@ -34,27 +34,23 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#ifndef LIBCBDETECT_GROW_CHESSBOARD_H
-#define LIBCBDETECT_GROW_CHESSBOARD_H
+#ifndef LIBCBDETECT_GROW_BOARD_H
+#define LIBCBDETECT_GROW_BOARD_H
 
 #include <vector>
 #include "config.h"
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL std::vector<cv::Point2d> predict_corners(const Corner &corners,
-                                                              const std::vector<int> &p1,
-                                                              const std::vector<int> &p2,
-                                                              const std::vector<int> &p3);
+enum GrowType {
+  GrowType_Failure = 0,
+  GrowType_Inside,
+  GrowType_Boundary,
+};
 
-LIBCBDETECT_DLL_DECL std::vector<int> assign_closest_corners(const Corner &corners,
-                                                             std::vector<int> &used,
-                                                             const std::vector<cv::Point2d> &pred,
-                                                             const std::vector<int> &last);
-
-LIBCBDETECT_DLL_DECL void grow_chessboard(const Corner &corners, std::vector<std::vector<int>> &chessboard,
-                                          int border_type);
+LIBCBDETECT_DLL_DECL GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
+                                         std::vector<cv::Point2i> &proposal, int direction, const Params &params);
 
 }
 
-#endif //LIBCBDETECT_GROW_CHESSBOARD_H
+#endif //LIBCBDETECT_GROW_BOARD_H

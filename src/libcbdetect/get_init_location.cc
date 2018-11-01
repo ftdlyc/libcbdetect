@@ -204,13 +204,13 @@ void localized_radon_transform(const cv::Mat &img_in, cv::Mat &img_out) {
 
 void get_init_location(const cv::Mat &img, const cv::Mat &img_du, const cv::Mat &img_dv,
                        Corner &corners, const Params &params) {
-  DetectMethod detct_method = params.corner_type == MonkeySaddlePoint ? HessianResponse : params.detct_method;
-  switch (detct_method) {
+  DetectMethod detect_method = params.corner_type == MonkeySaddlePoint ? HessianResponse : params.detect_method;
+  switch (detect_method) {
     case TemplateMatchFast:
     case TemplateMatchSlow: {
       // templates and scales
       std::vector<double> tprops;
-      if (detct_method == TemplateMatchFast) {
+      if (detect_method == TemplateMatchFast) {
         tprops = {0, M_PI_2,
                   M_PI_4, -M_PI_4};
       } else {

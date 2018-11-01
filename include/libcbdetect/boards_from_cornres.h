@@ -34,42 +34,18 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "chessboard_energy.h"
+#ifndef LIBCBDETECT_BOARD_FROM_CORNRES_H
+#define LIBCBDETECT_BOARD_FROM_CORNRES_H
+
+#include <vector>
 #include <opencv2/opencv.hpp>
 #include "config.h"
 
 namespace cbdetect {
 
-double chessboard_energy(const Corner &corners, const std::vector<std::vector<int>> &chessboard) {
-  // energy: number of corners
-  double E_corners = -1.0 * chessboard.size() * chessboard[0].size();
-
-  // energy: structure
-  double E_structure = 0.;
-
-  // walk through rows
-  for (int i = 0; i < chessboard.size(); ++i) {
-    for (int j = 0; j < chessboard[0].size() - 2; ++j) {
-      const cv::Point2d &x1 = corners.p[chessboard[i][j]];
-      const cv::Point2d &x2 = corners.p[chessboard[i][j + 1]];
-      const cv::Point2d &x3 = corners.p[chessboard[i][j + 2]];
-      E_structure = std::max(E_structure, cv::norm(x1 + x3 - 2 * x2) / cv::norm(x1 - x3));
-    }
-  }
-
-  // walk through columns
-  for (int j = 0; j < chessboard[0].size(); ++j) {
-    for (int i = 0; i < chessboard.size() - 2; ++i) {
-      const cv::Point2d &x1 = corners.p[chessboard[i][j]];
-      const cv::Point2d &x2 = corners.p[chessboard[i + 1][j]];
-      const cv::Point2d &x3 = corners.p[chessboard[i + 2][j]];
-      E_structure = std::max(E_structure, cv::norm(x1 + x3 - 2 * x2) / cv::norm(x1 - x3));
-
-    }
-  }
-
-  // final energy
-  return E_corners * (1 - E_structure);
-}
+LIBCBDETECT_DLL_DECL void boards_from_corners(const cv::Mat &img, const Corner &corners,
+                                              std::vector<Board> &boards, const Params &params);
 
 }
+
+#endif //LIBCBDETECT_BOARD_FROM_CORNRES_H

@@ -24,8 +24,8 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void plot_deltilles(const cv::Mat &img, const Corner &corners,
-                                         const std::vector<Deltille> &deltilles);
+LIBCBDETECT_DLL_DECL void plot_boards(const cv::Mat &img, const Corner &corners,
+                                      const std::vector<Board> &boards, const Params &params);
 
 }
 
