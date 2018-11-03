@@ -107,7 +107,7 @@ void find_corners_reiszed(const cv::Mat &img, Corner &corners, const Params &par
       corners.r.emplace_back(corners_resized.r[i]);
       corners.v1.emplace_back(corners_resized.v1[i]);
       corners.v2.emplace_back(corners_resized.v2[i]);
-      if (params.corner_type == MonkeySaddlePoint) { corners.v2.emplace_back(corners_resized.v3[i]); }
+      if (params.corner_type == MonkeySaddlePoint) { corners.v3.emplace_back(corners_resized.v3[i]); }
     }
   }
 }
