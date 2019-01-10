@@ -234,7 +234,7 @@ GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
             proposal.emplace_back(cv::Point2i(j, i));
           }
         }
-        if (!proposal.empty()) { break; }
+        if (!proposal.empty() || params.strict_grow ) { break; }
         for (int i = rows - 3; i >= 0; --i) {
           for (int j = 0; j < cols; ++j) {
             if (board.idx[i][j] != -1) { continue; }
@@ -262,7 +262,7 @@ GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
             proposal.emplace_back(cv::Point2i(j, i));
           }
         }
-        if (!proposal.empty()) { break; }
+        if (!proposal.empty() || params.strict_grow ) { break; }
         for (int i = 0; i < rows; ++i) {
           for (int j = cols - 3; j >= 0; --j) {
             if (board.idx[i][j] != -1) { continue; }
@@ -290,7 +290,7 @@ GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
             proposal.emplace_back(cv::Point2i(j, i));
           }
         }
-        if (!proposal.empty()) { break; }
+        if (!proposal.empty() || params.strict_grow ) { break; }
         for (int i = 2; i < rows; ++i) {
           for (int j = 0; j < cols; ++j) {
             if (board.idx[i][j] != -1) { continue; }
@@ -318,7 +318,7 @@ GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
             proposal.emplace_back(cv::Point2i(j, i));
           }
         }
-        if (!proposal.empty()) { break; }
+        if (!proposal.empty() || params.strict_grow ) { break; }
         for (int i = 0; i < rows; ++i) {
           for (int j = 2; j < cols; ++j) {
             if (board.idx[i][j] != -1) { continue; }
@@ -346,7 +346,7 @@ GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
             proposal.emplace_back(cv::Point2i(j, i));
           }
         }
-        if (!proposal.empty()) { break; }
+        if (!proposal.empty() || params.strict_grow ) { break; }
         for (int i = 2; i < rows; ++i) {
           for (int j = 2; j < cols; ++j) {
             if (board.idx[i][j] != -1) { continue; }
@@ -374,7 +374,7 @@ GrowType grow_board(const Corner &corners, std::vector<int> &used, Board &board,
             proposal.emplace_back(cv::Point2i(j, i));
           }
         }
-        if (!proposal.empty()) { break; }
+        if (!proposal.empty() || params.strict_grow ) { break; }
         for (int i = 0; i < rows - 2; ++i) {
           for (int j = 0; j < cols - 2; ++j) {
             if (board.idx[i][j] != -1) { continue; }

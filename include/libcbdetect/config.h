@@ -87,6 +87,7 @@ typedef struct Params {
   int polynomial_fit_half_kernel_size;
   double init_loc_thr;
   double score_thr;
+  bool strict_grow;
   DetectMethod detect_method;
   CornerType corner_type;
   std::vector<int> radius;
@@ -101,6 +102,7 @@ typedef struct Params {
       polynomial_fit_half_kernel_size(4),
       init_loc_thr(0.01),
       score_thr(0.01),
+      strict_grow(true),
       detect_method(HessianResponse),
       corner_type(SaddlePoint),
       radius({5, 7}) {}
