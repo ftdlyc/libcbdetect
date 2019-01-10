@@ -34,25 +34,29 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "boards_from_cornres.h"
-#include <algorithm>
-#include <chrono>
-#include <random>
-#include <vector>
-#include <opencv2/opencv.hpp>
-#include "config.h"
 #include "board_energy.h"
+#include "boards_from_cornres.h"
+#include "config.h"
 #include "filter_board.h"
 #include "grow_board.h"
 #include "init_board.h"
+#include <algorithm>
+#include <chrono>
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <vector>
 
 namespace cbdetect {
 
-void debug_grow_process(const cv::Mat &img, const Corner &corners, const Board &board,
-                        const std::vector<cv::Point2i> &proposal, int direction, bool type) {
+void debug_grow_process(const cv::Mat& img, const Corner& corners, const Board& board,
+                        const std::vector<cv::Point2i>& proposal, int direction, bool type) {
   cv::Mat img_show;
   if (img.channels() != 3) {
+#if CV_VERSION_MAJOR >= 4
+    cv::cvtColor(img, img_show, cv::COLOR_GRAY2BGR);
+#else
     cv::cvtColor(img, img_show, CV_GRAY2BGR);
+#endif
   } else {
     img_show = img.clone();
   }
@@ -60,7 +64,9 @@ void debug_grow_process(const cv::Mat &img, const Corner &corners, const Board &
   cv::Point2d mean(0.0, 0.0);
   for (int i = 0; i < board.idx.size(); ++i) {
     for (int j = 0; j < board.idx[i].size(); ++j) {
-      if (board.idx[i][j] < 0) { continue; }
+      if (board.idx[i][j] < 0) {
+        continue;
+      }
       cv::circle(img_show, corners.p[board.idx[i][j]], 4, cv::Scalar(255, 0, 0), -1);
       cv::putText(img_show, std::to_string(board.idx[i][j]),
                   cv::Point2i(corners.p[board.idx[i][j]].x - 12, corners.p[board.idx[i][j]].y - 6),
@@ -68,14 +74,16 @@ void debug_grow_process(const cv::Mat &img, const Corner &corners, const Board &
       mean += corners.p[board.idx[i][j]];
     }
   }
-  mean /= (double) (board.num);
+  mean /= (double)(board.num);
   mean.x -= 10;
   mean.y += 10;
   cv::putText(img_show, std::to_string(direction), mean,
               cv::FONT_HERSHEY_SIMPLEX, 1.3, cv::Scalar(196, 196, 0), 2);
 
-  for (const auto &i : proposal) {
-    if (board.idx[i.y][i.x] < 0) { continue; }
+  for (const auto& i : proposal) {
+    if (board.idx[i.y][i.x] < 0) {
+      continue;
+    }
     if (type) {
       cv::circle(img_show, corners.p[board.idx[i.y][i.x]], 4, cv::Scalar(0, 255, 0), -1);
     } else {
@@ -87,7 +95,7 @@ void debug_grow_process(const cv::Mat &img, const Corner &corners, const Board &
   cv::waitKey();
 }
 
-void boards_from_corners(const cv::Mat &img, const Corner &corners, std::vector<Board> &boards, const Params &params) {
+void boards_from_corners(const cv::Mat& img, const Corner& corners, std::vector<Board>& boards, const Params& params) {
   // intialize boards
   boards.clear();
   Board board;
@@ -104,11 +112,13 @@ void boards_from_corners(const cv::Mat &img, const Corner &corners, std::vector<
   while (n++ < corners.p.size()) {
     // init 3x3 board from seed i
     int i = (n + start) % corners.p.size();
-    if (used[i] == 1 || !init_board(corners, used, board, i)) { continue; }
+    if (used[i] == 1 || !init_board(corners, used, board, i)) {
+      continue;
+    }
 
     // check if this is a useful initial guess
     cv::Point3i maxE_pos = board_energy(corners, board, params);
-    double energy = board.energy[maxE_pos.y][maxE_pos.x][maxE_pos.z];
+    double energy        = board.energy[maxE_pos.y][maxE_pos.x][maxE_pos.z];
     if (energy > -6.0) {
       for (int jj = 0; jj < 3; ++jj) {
         for (int ii = 0; ii < 3; ++ii) {
@@ -125,7 +135,9 @@ void boards_from_corners(const cv::Mat &img, const Corner &corners, std::vector<
       for (int j = 0; j < (params.corner_type == MonkeySaddlePoint ? 6 : 4); ++j) {
         std::vector<cv::Point2i> proposal;
         GrowType grow_type = grow_board(corners, used, board, proposal, j, params);
-        if (grow_type == GrowType_Failure) { continue; }
+        if (grow_type == GrowType_Failure) {
+          continue;
+        }
 
         if (params.show_grow_processing) {
           for (int ii = 0; ii < board.idx.size(); ++ii) {
@@ -151,11 +163,15 @@ void boards_from_corners(const cv::Mat &img, const Corner &corners, std::vector<
           debug_grow_process(img, corners, board, proposal, j, true);
         }
 
-        if (grow_type == GrowType_Inside) { --j; }
+        if (grow_type == GrowType_Inside) {
+          --j;
+        }
       }
 
       // exit loop
-      if (board.num == num_corners) { break; }
+      if (board.num == num_corners) {
+        break;
+      }
     }
 
     if (params.corner_type == MonkeySaddlePoint) {
@@ -180,7 +196,7 @@ void boards_from_corners(const cv::Mat &img, const Corner &corners, std::vector<
         }
       }
     }
-    GOTO_BREAK:;
+  GOTO_BREAK:;
 
     if (overlap.empty()) {
       boards.emplace_back(board);
@@ -210,5 +226,4 @@ void boards_from_corners(const cv::Mat &img, const Corner &corners, std::vector<
   }
 }
 
-}
-
+} // namespace cbdetect

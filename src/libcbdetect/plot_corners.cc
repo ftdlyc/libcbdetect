@@ -43,7 +43,11 @@ namespace cbdetect {
 void plot_corners(const cv::Mat &img, const std::vector<cv::Point2d> &corners, const char *str) {
   cv::Mat img_show;
   if (img.channels() != 3) {
+#if CV_VERSION_MAJOR >= 4
+    cv::cvtColor(img, img_show, cv::COLOR_GRAY2BGR);
+#else
     cv::cvtColor(img, img_show, CV_GRAY2BGR);
+#endif
   } else {
     img_show = img.clone();
   }
@@ -57,7 +61,11 @@ void plot_corners(const cv::Mat &img, const std::vector<cv::Point2d> &corners, c
 void plot_corners(const cv::Mat &img, const Corner &corners) {
   cv::Mat img_show;
   if (img.channels() != 3) {
+#if CV_VERSION_MAJOR >= 4
+    cv::cvtColor(img, img_show, cv::COLOR_GRAY2BGR);
+#else
     cv::cvtColor(img, img_show, CV_GRAY2BGR);
+#endif
   } else {
     img_show = img.clone();
   }

@@ -26,7 +26,11 @@ void plot_boards(const cv::Mat &img, const Corner &corners,
                  const std::vector<Board> &boards, const Params &params) {
   cv::Mat img_show;
   if (img.channels() != 3) {
+#if CV_VERSION_MAJOR >= 4
+    cv::cvtColor(img, img_show, cv::COLOR_GRAY2BGR);
+#else
     cv::cvtColor(img, img_show, CV_GRAY2BGR);
+#endif
   } else {
     img_show = img.clone();
   }
