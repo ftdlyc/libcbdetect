@@ -1,4 +1,4 @@
-Libdetect
+Libcbdetect
 ---
 - Unofficial implemention of [libcbdetect](http://www.cvlibs.net/software/libcbdetect/) in C++.  
 - Deltille detector.  
