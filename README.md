@@ -15,8 +15,8 @@ Libdetect is a fully automatic sub-pixel checkerboard / chessboard / deltille pa
 > Params params;  
 > find_corners(img, corners, params);  
 > plot_corners(img, corners);  
-> chessboards_from_corners(corners, chessboards);  
-> plot_chessboards(img, corners, chessboards);  
+> boards_from_corners(corners, boards);  
+> plot_boards(img, corners, boards);  
   
 ![image](https://github.com/ftdlyc/libcbdetect/blob/master/example_data/e2_result.png)  
 ![image](https://github.com/ftdlyc/libcbdetect/blob/master/example_data/e6_result.png)  
