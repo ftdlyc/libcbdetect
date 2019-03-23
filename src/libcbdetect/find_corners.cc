@@ -55,7 +55,7 @@ void find_corners_reiszed(const cv::Mat &img, Corner &corners, const Params &par
 #if CV_VERSION_MAJOR >= 4
     cv::cvtColor(img_resized, img_norm, cv::COLOR_BGR2GRAY);
 #else
-    cv::cvtColor(img, img_show, CV_GRAY2BGR);
+    cv::cvtColor(img_resized, img_norm, CV_GRAY2BGR);
 #endif
     img_norm.convertTo(img_norm, CV_64F, 1 / 255.0, 0);
   } else {
@@ -131,7 +131,7 @@ void find_corners(const cv::Mat &img, Corner &corners, const Params &params) {
 #if CV_VERSION_MAJOR >= 4
     cv::cvtColor(img, img_norm, cv::COLOR_BGRA2GRAY);
 #else
-    cv::cvtColor(img, img_show, CV_GRAY2BGR);
+    cv::cvtColor(img, img_norm, CV_GRAY2BGR);
 #endif
     img_norm.convertTo(img_norm, CV_64F, 1. / 255., 0);
   } else {
