@@ -187,8 +187,8 @@ void boards_from_corners(const cv::Mat& img, const Corner& corners, std::vector<
           for(int l1 = 0; l1 < boards[j].idx.size(); ++l1) {
             for(int l2 = 0; l2 < boards[j].idx[0].size(); ++l2) {
               if(board.idx[k1][k2] != -1 && board.idx[k1][k2] != -2 && board.idx[k1][k2] == boards[j].idx[l1][l2]) {
-                cv::Point3i maxE_pos_tmp = board_energy(corners, board, params);
-                overlap.emplace_back(std::make_pair(j, board.energy[maxE_pos_tmp.y][maxE_pos_tmp.x][maxE_pos_tmp.z]));
+                cv::Point3i maxE_pos_tmp = board_energy(corners, boards[j], params);
+                overlap.emplace_back(std::make_pair(j, boards[j].energy[maxE_pos_tmp.y][maxE_pos_tmp.x][maxE_pos_tmp.z]));
                 goto GOTO_BREAK;
               }
             }
