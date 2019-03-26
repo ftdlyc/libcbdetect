@@ -34,15 +34,16 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
+#pragma once
 #ifndef LIBCBDETECT_BOARD_ENERGY_H
 #define LIBCBDETECT_BOARD_ENERGY_H
 
-#include <vector>
 #include "config.h"
+#include <vector>
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL cv::Point3i board_energy(const Corner &corners, Board &board, const Params &params);
+LIBCBDETECT_DLL_DECL cv::Point3i board_energy(const Corner& corners, Board& board, const Params& params);
 
 }
 

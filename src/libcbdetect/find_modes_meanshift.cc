@@ -35,30 +35,30 @@
 */
 
 #include "find_modes_meanshift.h"
-#include <cmath>
-#include <algorithm>
-#include <vector>
-#include <unordered_map>
 #include "config.h"
+#include <algorithm>
+#include <cmath>
+#include <unordered_map>
+#include <vector>
 
 namespace cbdetect {
 
 // efficient mean-shift approximation by histogram smoothing
-std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<double> &hist, double sigma) {
+std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<double>& hist, double sigma) {
   std::unordered_map<int, double> hash_table;
   std::vector<std::pair<int, double>> modes;
 
   int r = static_cast<int>(std::round(2 * sigma));
   std::vector<double> weight(2 * r + 1, 0);
-  for (int i = 0; i < 2 * r + 1; ++i) {
+  for(int i = 0; i < 2 * r + 1; ++i) {
     weight[i] = std::exp(-0.5 * (i - r) * (i - r) / sigma / sigma) / std::sqrt(2 * M_PI) / sigma;
   }
 
   // compute smoothed histogram
   int n = hist.size();
   std::vector<double> hist_smoothed(n, 0);
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < 2 * r + 1; ++j) {
+  for(int i = 0; i < n; ++i) {
+    for(int j = 0; j < 2 * r + 1; ++j) {
       hist_smoothed[(i + r) % n] += hist[(i + j) % n] * weight[j];
     }
   }
@@ -66,22 +66,24 @@ std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<doubl
   // check if at least one entry is non-zero
   // (otherwise mode finding may run infinitly)
   auto max_hist_val = std::max_element(hist_smoothed.begin(), hist_smoothed.end());
-  if (*max_hist_val < 1e-6) { return modes; }
+  if(*max_hist_val < 1e-6) {
+    return modes;
+  }
 
   // mode finding
   std::vector<int> visited(n, 0);
-  for (int i = 0; i < n; ++i) {
+  for(int i = 0; i < n; ++i) {
     int j = i;
-    if (!visited[j]) {
-      while (1) {
+    if(!visited[j]) {
+      while(1) {
         visited[j] = 1;
         int j1 = (j + 1) % n, j2 = (j + n - 1) % n;
         double h0 = hist_smoothed[j];
         double h1 = hist_smoothed[j1];
         double h2 = hist_smoothed[j2];
-        if (h1 >= h0 && h1 >= h2) {
+        if(h1 >= h0 && h1 >= h2) {
           j = j1;
-        } else if (h2 > h0 && h2 > h1) {
+        } else if(h2 > h0 && h2 > h1) {
           j = j2;
         } else {
           break;
@@ -91,14 +93,14 @@ std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<doubl
     }
   }
 
-  for (const auto &i : hash_table) {
+  for(const auto& i : hash_table) {
     modes.emplace_back(i);
   }
-  std::sort(modes.begin(), modes.end(), [](const auto &i1, const auto &i2) -> bool {
+  std::sort(modes.begin(), modes.end(), [](const auto& i1, const auto& i2) -> bool {
     return i1.second > i2.second;
   });
 
   return modes;
 };
 
-}
+} // namespace cbdetect

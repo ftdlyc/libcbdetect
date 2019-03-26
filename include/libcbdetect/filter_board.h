@@ -15,17 +15,18 @@
 * License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma once
 #ifndef LIBCBDETECT_FILTER_BOARD_H
 #define LIBCBDETECT_FILTER_BOARD_H
 
-#include <vector>
-#include <opencv2/opencv.hpp>
 #include "config.h"
+#include <opencv2/opencv.hpp>
+#include <vector>
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void filter_board(const Corner &corners, std::vector<int> &used, Board &board,
-                                       std::vector<cv::Point2i> &proposal, double &energy, const Params &params);
+LIBCBDETECT_DLL_DECL void filter_board(const Corner& corners, std::vector<int>& used, Board& board,
+                                       std::vector<cv::Point2i>& proposal, double& energy, const Params& params);
 
 }
 

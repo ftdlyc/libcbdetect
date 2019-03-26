@@ -35,14 +35,14 @@
 */
 
 #include "create_correlation_patch.h"
-#include <cmath>
 #include "config.h"
+#include <cmath>
 
 namespace cbdetect {
 
-void create_correlation_patch(std::vector<cv::Mat> &template_kernel, double angle_1, double angle_2, int radius) {
+void create_correlation_patch(std::vector<cv::Mat>& template_kernel, double angle_1, double angle_2, int radius) {
   // width and height
-  int width = radius * 2 + 1;
+  int width  = radius * 2 + 1;
   int height = radius * 2 + 1;
 
   // initialize template
@@ -60,8 +60,8 @@ void create_correlation_patch(std::vector<cv::Mat> &template_kernel, double angl
   double n2[2]{-std::sin(angle_2), std::cos(angle_2)};
 
   // for all points in template do
-  for (int u = 0; u < width; ++u) {
-    for (int v = 0; v < height; ++v) {
+  for(int u = 0; u < width; ++u) {
+    for(int v = 0; v < height; ++v) {
       // vector
       int vec[2]{u + 1 - mu, v + 1 - mv};
       double dist = std::sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
@@ -70,14 +70,14 @@ void create_correlation_patch(std::vector<cv::Mat> &template_kernel, double angl
       double s1 = vec[0] * n1[0] + vec[1] * n1[1];
       double s2 = vec[0] * n2[0] + vec[1] * n2[1];
 
-      if (dist <= radius) {
-        if (s1 <= -0.1 && s2 <= -0.1) {
+      if(dist <= radius) {
+        if(s1 <= -0.1 && s2 <= -0.1) {
           template_kernel[0].at<double>(v, u) = 1;
-        } else if (s1 >= 0.1 && s2 >= 0.1) {
+        } else if(s1 >= 0.1 && s2 >= 0.1) {
           template_kernel[1].at<double>(v, u) = 1;
-        } else if (s1 <= -0.1 && s2 >= 0.1) {
+        } else if(s1 <= -0.1 && s2 >= 0.1) {
           template_kernel[2].at<double>(v, u) = 1;
-        } else if (s1 >= 0.1 && s2 <= -0.1) {
+        } else if(s1 >= 0.1 && s2 <= -0.1) {
           template_kernel[3].at<double>(v, u) = 1;
         }
       }
@@ -86,19 +86,27 @@ void create_correlation_patch(std::vector<cv::Mat> &template_kernel, double angl
 
   // normalize
   double sum = cv::sum(template_kernel[0])[0];
-  if (sum > 1e-5) { template_kernel[0] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[0] /= sum;
+  }
   sum = cv::sum(template_kernel[1])[0];
-  if (sum > 1e-5) { template_kernel[1] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[1] /= sum;
+  }
   sum = cv::sum(template_kernel[2])[0];
-  if (sum > 1e-5) { template_kernel[2] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[2] /= sum;
+  }
   sum = cv::sum(template_kernel[3])[0];
-  if (sum > 1e-5) { template_kernel[3] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[3] /= sum;
+  }
 }
 
-void create_correlation_patch(std::vector<cv::Mat> &template_kernel,
+void create_correlation_patch(std::vector<cv::Mat>& template_kernel,
                               double angle_1, double angle_2, double angle_3, int radius) {
   // width and height
-  int width = radius * 2 + 1;
+  int width  = radius * 2 + 1;
   int height = radius * 2 + 1;
 
   // initialize template
@@ -119,8 +127,8 @@ void create_correlation_patch(std::vector<cv::Mat> &template_kernel,
   double n3[3]{-std::sin(angle_3), std::cos(angle_3)};
 
   // for all points in template do
-  for (int u = 0; u < width; ++u) {
-    for (int v = 0; v < height; ++v) {
+  for(int u = 0; u < width; ++u) {
+    for(int v = 0; v < height; ++v) {
       // vector
       int vec[2]{u + 1 - mu, v + 1 - mv};
       double dist = std::sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
@@ -130,18 +138,18 @@ void create_correlation_patch(std::vector<cv::Mat> &template_kernel,
       double s2 = vec[0] * n2[0] + vec[1] * n2[1];
       double s3 = vec[0] * n3[0] + vec[1] * n3[1];
 
-      if (dist <= radius) {
-        if (s1 >= -0.1 && s2 <= -0.1) {
+      if(dist <= radius) {
+        if(s1 >= -0.1 && s2 <= -0.1) {
           template_kernel[0].at<double>(v, u) = 1;
-        } else if (s1 >= 0.1 && s3 >= 0.1) {
+        } else if(s1 >= 0.1 && s3 >= 0.1) {
           template_kernel[1].at<double>(v, u) = 1;
-        } else if (s2 <= -0.1 && s3 >= 0.1) {
+        } else if(s2 <= -0.1 && s3 >= 0.1) {
           template_kernel[2].at<double>(v, u) = 1;
-        } else if (s1 <= 0.1 && s2 >= -0.1) {
+        } else if(s1 <= 0.1 && s2 >= -0.1) {
           template_kernel[3].at<double>(v, u) = 1;
-        } else if (s1 <= 0.1 && s3 <= -0.1) {
+        } else if(s1 <= 0.1 && s3 <= -0.1) {
           template_kernel[4].at<double>(v, u) = 1;
-        } else if (s2 >= 0.1 && s3 <= -0.1) {
+        } else if(s2 >= 0.1 && s3 <= -0.1) {
           template_kernel[5].at<double>(v, u) = 1;
         }
       }
@@ -150,17 +158,29 @@ void create_correlation_patch(std::vector<cv::Mat> &template_kernel,
 
   // normalize
   double sum = cv::sum(template_kernel[0])[0];
-  if (sum > 1e-5) { template_kernel[0] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[0] /= sum;
+  }
   sum = cv::sum(template_kernel[1])[0];
-  if (sum > 1e-5) { template_kernel[1] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[1] /= sum;
+  }
   sum = cv::sum(template_kernel[2])[0];
-  if (sum > 1e-5) { template_kernel[2] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[2] /= sum;
+  }
   sum = cv::sum(template_kernel[3])[0];
-  if (sum > 1e-5) { template_kernel[3] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[3] /= sum;
+  }
   sum = cv::sum(template_kernel[4])[0];
-  if (sum > 1e-5) { template_kernel[4] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[4] /= sum;
+  }
   sum = cv::sum(template_kernel[5])[0];
-  if (sum > 1e-5) { template_kernel[5] /= sum; }
+  if(sum > 1e-5) {
+    template_kernel[5] /= sum;
+  }
 }
 
-}
+} // namespace cbdetect

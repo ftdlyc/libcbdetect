@@ -34,15 +34,16 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
+#pragma once
 #ifndef LIBCBDETECT_INIT_BOARD_H
 #define LIBCBDETECT_INIT_BOARD_H
 
-#include <vector>
 #include "config.h"
+#include <vector>
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL bool init_board(const Corner &corners, std::vector<int> &used, Board &board, int idx);
+LIBCBDETECT_DLL_DECL bool init_board(const Corner& corners, std::vector<int>& used, Board& board, int idx);
 
 }
 
