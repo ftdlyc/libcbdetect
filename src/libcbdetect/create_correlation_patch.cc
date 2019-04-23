@@ -34,9 +34,10 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "create_correlation_patch.h"
-#include "config.h"
-#include <cmath>
+#include <math.h>
+
+#include "libcbdetect/create_correlation_patch.h"
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

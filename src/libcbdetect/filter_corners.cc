@@ -34,17 +34,20 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "filter_corners.h"
-#include "config.h"
-#include "find_corners.h"
-#include "find_modes_meanshift.h"
-#include "weight_mask.h"
+#include <math.h>
+#include <stdio.h>
+
 #include <algorithm>
-#include <cmath>
-#include <cstring>
-#include <opencv2/opencv.hpp>
 #include <unordered_map>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/filter_corners.h"
+#include "libcbdetect/find_corners.h"
+#include "libcbdetect/find_modes_meanshift.h"
+#include "libcbdetect/weight_mask.h"
 
 namespace cbdetect {
 

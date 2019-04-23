@@ -34,10 +34,12 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "grow_board.h"
-#include "config.h"
-#include <opencv2/opencv.hpp>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/grow_board.h"
 
 namespace cbdetect {
 

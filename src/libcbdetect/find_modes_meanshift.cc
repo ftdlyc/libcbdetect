@@ -34,12 +34,14 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "find_modes_meanshift.h"
-#include "config.h"
+#include <math.h>
+
 #include <algorithm>
-#include <cmath>
 #include <unordered_map>
 #include <vector>
+
+#include "libcbdetect/find_modes_meanshift.h"
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

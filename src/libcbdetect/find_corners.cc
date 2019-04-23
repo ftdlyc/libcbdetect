@@ -19,20 +19,23 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "find_corners.h"
-#include "config.h"
-#include "filter_corners.h"
-#include "get_init_location.h"
-#include "image_normalization_and_gradients.h"
-#include "non_maximum_suppression.h"
-#include "plot_corners.h"
-#include "polynomial_fit.h"
-#include "refine_corners.h"
-#include "score_corners.h"
-#include <cmath>
-#include <cstdio>
-#include <opencv2/opencv.hpp>
+#include <math.h>
+#include <stdio.h>
+
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/filter_corners.h"
+#include "libcbdetect/find_corners.h"
+#include "libcbdetect/get_init_location.h"
+#include "libcbdetect/image_normalization_and_gradients.h"
+#include "libcbdetect/non_maximum_suppression.h"
+#include "libcbdetect/plot_corners.h"
+#include "libcbdetect/polynomial_fit.h"
+#include "libcbdetect/refine_corners.h"
+#include "libcbdetect/score_corners.h"
 
 namespace cbdetect {
 

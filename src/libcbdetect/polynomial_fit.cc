@@ -15,10 +15,11 @@
 * License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "polynomial_fit.h"
-#include "config.h"
-#include "get_image_patch.h"
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/get_image_patch.h"
+#include "libcbdetect/polynomial_fit.h"
 
 namespace cbdetect {
 

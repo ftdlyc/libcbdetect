@@ -34,10 +34,12 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "non_maximum_suppression.h"
-#include "config.h"
-#include <cstring>
+#include <stdio.h>
+
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/non_maximum_suppression.h"
 
 namespace cbdetect {
 

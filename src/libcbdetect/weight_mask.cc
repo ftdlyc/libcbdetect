@@ -34,11 +34,13 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "weight_mask.h"
-#include "config.h"
-#include <opencv2/opencv.hpp>
 #include <unordered_map>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/weight_mask.h"
 
 namespace cbdetect {
 

@@ -34,9 +34,11 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "board_energy.h"
-#include <opencv2/opencv.hpp>
 #include <tuple>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/board_energy.h"
 
 namespace cbdetect {
 

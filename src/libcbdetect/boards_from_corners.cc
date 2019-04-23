@@ -34,17 +34,20 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "board_energy.h"
-#include "boards_from_cornres.h"
-#include "config.h"
-#include "filter_board.h"
-#include "grow_board.h"
-#include "init_board.h"
 #include <algorithm>
 #include <chrono>
-#include <opencv2/opencv.hpp>
+#include <iostream>
 #include <random>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/board_energy.h"
+#include "libcbdetect/boards_from_cornres.h"
+#include "libcbdetect/config.h"
+#include "libcbdetect/filter_board.h"
+#include "libcbdetect/grow_board.h"
+#include "libcbdetect/init_board.h"
 
 namespace cbdetect {
 
@@ -101,11 +104,14 @@ void boards_from_corners(const cv::Mat& img, const Corner& corners, std::vector<
   Board board;
   std::vector<int> used(corners.p.size(), 0);
 
-  // start from random index
-  std::default_random_engine e;
-  auto time = std::chrono::system_clock::now().time_since_epoch();
-  e.seed(static_cast<unsigned long>(time.count()));
-  int start = e() % corners.p.size();
+  int start = 0;
+  if(!params.overlay) {
+    // start from random index
+    std::default_random_engine e;
+    auto time = std::chrono::system_clock::now().time_since_epoch();
+    e.seed(static_cast<unsigned long>(time.count()));
+    start = e() % corners.p.size();
+  }
 
   // for all seed corners do
   int n = 0;
@@ -174,7 +180,7 @@ void boards_from_corners(const cv::Mat& img, const Corner& corners, std::vector<
       }
     }
 
-    if(params.corner_type == MonkeySaddlePoint) {
+    if(!params.overlay) {
       boards.emplace_back(board);
       continue;
     }

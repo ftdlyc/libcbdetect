@@ -52,14 +52,16 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "get_init_location.h"
-#include "config.h"
-#include "create_correlation_patch.h"
-#include "get_image_patch.h"
-#include "image_normalization_and_gradients.h"
-#include "non_maximum_suppression.h"
-#include <opencv2/opencv.hpp>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/create_correlation_patch.h"
+#include "libcbdetect/get_image_patch.h"
+#include "libcbdetect/get_init_location.h"
+#include "libcbdetect/image_normalization_and_gradients.h"
+#include "libcbdetect/non_maximum_suppression.h"
 
 namespace cbdetect {
 

@@ -34,11 +34,13 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "image_normalization_and_gradients.h"
-#include "config.h"
-#include <cmath>
+#include <math.h>
+
 #include <opencv2/core/hal/hal.hpp>
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/image_normalization_and_gradients.h"
 
 namespace cbdetect {
 

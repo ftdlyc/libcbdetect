@@ -34,9 +34,10 @@
 % Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
-#include "plot_corners.h"
-#include "config.h"
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/plot_corners.h"
 
 namespace cbdetect {
 
@@ -80,7 +81,7 @@ void plot_corners(const cv::Mat& img, const Corner& corners) {
                 cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255), 1);
   }
   cv::imshow("corners_img", img_show);
-  cv::imwrite("corners_img.png", img_show);
+  // cv::imwrite("corners_img.png", img_show);
 }
 
 } // namespace cbdetect
