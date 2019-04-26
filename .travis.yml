@@ -5,6 +5,7 @@ matrix:
     - name: (Xenial) gcc-5 compilation
       dist: xenial
       before_install:
+        - sudo apt-get update
         - sudo apt-get install -y libopencv-core-dev libopencv-highgui-dev libopencv-imgcodecs-dev libopencv-imgproc-dev
       script:
         - mkdir build
