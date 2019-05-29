@@ -19,8 +19,9 @@
 #ifndef LIBCBDETECT_POLYNOMIAL_FIT_H
 #define LIBCBDETECT_POLYNOMIAL_FIT_H
 
-#include "config.h"
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

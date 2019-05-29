@@ -38,8 +38,9 @@
 #ifndef LIBCBDETECT_FIND_MODES_MEANSHIFT_H
 #define LIBCBDETECT_FIND_MODES_MEANSHIFT_H
 
-#include "config.h"
 #include <vector>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

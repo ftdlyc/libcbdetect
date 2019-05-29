@@ -38,9 +38,11 @@
 #ifndef LIBCBDETECT_BOARD_FROM_CORNRES_H
 #define LIBCBDETECT_BOARD_FROM_CORNRES_H
 
-#include "config.h"
-#include <opencv2/opencv.hpp>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

@@ -38,8 +38,9 @@
 #ifndef LIBCBDETECT_INIT_BOARD_H
 #define LIBCBDETECT_INIT_BOARD_H
 
-#include "config.h"
 #include <vector>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

@@ -38,8 +38,9 @@
 #ifndef LIBCBDETECT_BOARD_ENERGY_H
 #define LIBCBDETECT_BOARD_ENERGY_H
 
-#include "config.h"
 #include <vector>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

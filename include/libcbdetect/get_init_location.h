@@ -40,9 +40,11 @@
 #ifndef LIBCBDETECT_GET_INIT_LOCATION_H
 #define LIBCBDETECT_GET_INIT_LOCATION_H
 
-#include "config.h"
-#include <opencv2/opencv.hpp>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

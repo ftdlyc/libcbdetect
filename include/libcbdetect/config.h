@@ -38,8 +38,9 @@
 #ifndef LIBCBDETECT_CONFIG_H
 #define LIBCBDETECT_CONFIG_H
 
-#include <opencv2/opencv.hpp>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
 
 #ifdef _MSC_VER
 #define M_PI 3.14159265358979323846   /* pi */
@@ -89,6 +90,7 @@ typedef struct Params {
   double init_loc_thr;
   double score_thr;
   bool strict_grow;
+  bool overlay;
   bool occlusion;
   DetectMethod detect_method;
   CornerType corner_type;
@@ -105,6 +107,7 @@ typedef struct Params {
       , init_loc_thr(0.01)
       , score_thr(0.01)
       , strict_grow(true)
+      , overlay(false)
       , occlusion(true)
       , detect_method(HessianResponse)
       , corner_type(SaddlePoint)

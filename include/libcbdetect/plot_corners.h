@@ -38,8 +38,9 @@
 #ifndef LIBCBDETECT_PLOT_CORNERS_H
 #define LIBCBDETECT_PLOT_CORNERS_H
 
-#include "config.h"
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

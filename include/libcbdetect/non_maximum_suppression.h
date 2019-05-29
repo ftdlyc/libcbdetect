@@ -38,9 +38,10 @@
 #ifndef LIBCBDETECT_NON_MAXIMUM_SUPPRESSION_H
 #define LIBCBDETECT_NON_MAXIMUM_SUPPRESSION_H
 
-#include "config.h"
-#include "find_corners.h"
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
+#include "libcbdetect/find_corners.h"
 
 namespace cbdetect {
 

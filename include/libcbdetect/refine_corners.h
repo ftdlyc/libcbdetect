@@ -38,9 +38,11 @@
 #ifndef LIBCBDETECT_REFINE_CORNERS_H
 #define LIBCBDETECT_REFINE_CORNERS_H
 
-#include "config.h"
-#include "find_corners.h"
+#include <vector>
+
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

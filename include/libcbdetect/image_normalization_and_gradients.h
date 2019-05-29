@@ -23,8 +23,9 @@
 #ifndef LIBCBDETECT_BOX_FILTER_H
 #define LIBCBDETECT_BOX_FILTER_H
 
-#include "config.h"
 #include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

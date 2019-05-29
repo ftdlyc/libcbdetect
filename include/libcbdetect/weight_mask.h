@@ -38,10 +38,12 @@
 #ifndef LIBCBDETECT_WEIGHT_MASK
 #define LIBCBDETECT_WEIGHT_MASK
 
-#include "config.h"
-#include <opencv2/opencv.hpp>
 #include <unordered_map>
 #include <vector>
+
+#include <opencv2/opencv.hpp>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 

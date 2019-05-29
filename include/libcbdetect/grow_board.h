@@ -38,8 +38,9 @@
 #ifndef LIBCBDETECT_GROW_BOARD_H
 #define LIBCBDETECT_GROW_BOARD_H
 
-#include "config.h"
 #include <vector>
+
+#include "libcbdetect/config.h"
 
 namespace cbdetect {
 
