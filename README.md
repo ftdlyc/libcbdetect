@@ -5,6 +5,8 @@ Libcbdetect
 
 Libdetect is a fully automatic sub-pixel checkerboard / chessboard / deltille pattern detection. The algorithm autmatically extracts corners to sub-pixel accuracy and combines them to (rectangular) checkerboards / chessboard-like / deltille patterns.  
   
+My calibration tool: [Libcalib](https://github.com/ftdlyc/libcalib)
+  
 #### Require
 - C++ 14  
 - Opencv >= 3.0  
