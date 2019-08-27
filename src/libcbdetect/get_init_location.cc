@@ -130,7 +130,7 @@ void rotate_image(const cv::Mat& img_in, double angle, cv::Mat& img_out, cv::Siz
   // cal new width and height
   double in_center_u = (img_in.cols - 1) / 2.;
   double in_center_v = (img_in.rows - 1) / 2.;
-  if(out_size.empty()) {
+  if(out_size.width <= 0 || out_size.height <= 0) {
     cv::Point2i tl(std::round(-in_center_u * std::cos(angle) - in_center_v * std::sin(angle)),
                    std::round(in_center_u * std::sin(angle) - in_center_v * std::cos(angle)));
     cv::Point2i tr(std::round(in_center_u * std::cos(angle) - in_center_v * std::sin(angle)),

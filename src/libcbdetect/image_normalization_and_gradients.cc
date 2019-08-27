@@ -104,8 +104,15 @@ void image_normalization_and_gradients(cv::Mat& img, cv::Mat& img_du, cv::Mat& i
   }
 
   // sobel masks
+#if CV_VERSION_MAJOR == 4
   cv::Mat_<double> du({3, 3}, {1, 0, -1, 2, 0, -2, 1, 0, -1});
   cv::Mat_<double> dv({3, 3}, {1, 2, 1, 0, 0, 0, -1, -2, -1});
+#else
+  double du_array[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+  double dv_array[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+  cv::Mat du(3, 3, CV_64F, du_array);
+  cv::Mat dv(3, 3, CV_64F, dv_array);
+#endif
 
   // compute image derivatives (for principal axes estimation)
   cv::filter2D(img, img_du, -1, du, cv::Point(-1, -1), 0, cv::BORDER_REFLECT);

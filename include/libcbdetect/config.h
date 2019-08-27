@@ -42,6 +42,28 @@
 
 #include <opencv2/opencv.hpp>
 
+#if CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR <= 2
+#include <functional>
+namespace cv {
+class ParallelLoopBodyLambdaWrapper : public ParallelLoopBody {
+private:
+  std::function<void(const Range&)> m_functor;
+
+public:
+  ParallelLoopBodyLambdaWrapper(std::function<void(const Range&)> functor)
+      : m_functor(functor) {}
+
+  virtual void operator()(const cv::Range& range) const {
+    m_functor(range);
+  }
+};
+
+inline void parallel_for_(const Range& range, std::function<void(const Range&)> functor, double nstripes = -1.) {
+  parallel_for_(range, ParallelLoopBodyLambdaWrapper(functor), nstripes);
+}
+} // namespace cv
+#endif
+
 #ifdef _MSC_VER
 #define M_PI 3.14159265358979323846   /* pi */
 #define M_PI_2 1.57079632679489661923 /* pi/2 */
