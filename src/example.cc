@@ -1,4 +1,4 @@
-#include "libcbdetect/boards_from_cornres.h"
+#include "libcbdetect/boards_from_corners.h"
 #include "libcbdetect/config.h"
 #include "libcbdetect/find_corners.h"
 #include "libcbdetect/plot_boards.h"

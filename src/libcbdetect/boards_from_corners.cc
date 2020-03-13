@@ -43,7 +43,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "libcbdetect/board_energy.h"
-#include "libcbdetect/boards_from_cornres.h"
+#include "libcbdetect/boards_from_corners.h"
 #include "libcbdetect/config.h"
 #include "libcbdetect/filter_board.h"
 #include "libcbdetect/grow_board.h"
