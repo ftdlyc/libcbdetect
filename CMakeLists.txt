@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(Libcbdetect)
 
-# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
-# set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
-# set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 
 set(CMAKE_CXX_STANDARD 14)
 # set(CMAKE_CXX_COMPILER g++)
@@ -14,12 +14,7 @@ if (DEFINED ENV{CONDA_PREFIX})
     set(CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
 endif()
 
-option(SHARED_LIB "Request build of shared libraries." ON)
-if (SHARED_LIB)
-  set(LIB_TYPE SHARED)
-else ()
-  set(LIB_TYPE STATIC)
-endif ()
+set(LIB_TYPE STATIC)
 
 # Set the path to the Homebrew-installed OpenCV libraries
 # set(OpenCV_DIR "/usr/local/opt/opencv@4")
@@ -35,3 +30,6 @@ include_directories(${THIRD_PARTY_INCLUDE_DIRS}
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/libcbdetect)
+
+pybind11_add_module(cbdetect_py MODULE src/python/libcbdetect.cc)
+target_link_libraries(cbdetect_py PRIVATE cbdetect)
