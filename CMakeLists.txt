@@ -6,8 +6,9 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 
 if (UNIX)
+  set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_COMPILER g++)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fopenmp")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Xpreprocessor -fopenmp")
   add_definitions(-DUNIX)
 elseif (WIN32)
   add_definitions(-DWINDOWS)
@@ -28,7 +29,10 @@ else ()
   set(LIB_TYPE STATIC)
 endif ()
 
-find_package(OpenCV REQUIRED)
+# Set the path to the Homebrew-installed OpenCV libraries
+set(OpenCV_DIR "/usr/local/opt/opencv@4")
+
+find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 
 set(THIRD_PARTY_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS})
 set(THIRD_PARTY_LIBS ${OpenCV_LIBS})
