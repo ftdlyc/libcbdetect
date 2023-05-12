@@ -4,22 +4,24 @@
 #include "libcbdetect/find_corners.h"
 #include "libcbdetect/plot_boards.h"
 #include "libcbdetect/plot_corners.h"
+#include "cvnp/cvnp.h"
+#include <opencv2/opencv.hpp>
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-int add(int i, int j) {
-    return i + j;
+cv::Mat add(cv::Mat a, cv::Mat b) {
+    return a + b;
 }
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(cbdetect_py, m) {
     m.doc() = R"pbdoc(
-        Pybind11 example plugin
+        Corner detector
         -----------------------
 
-        .. currentmodule:: cbdetect
+        .. currentmodule:: cbdetect_py
 
         .. autosummary::
            :toctree: _generate
@@ -29,16 +31,16 @@ PYBIND11_MODULE(cbdetect_py, m) {
     )pbdoc";
 
     m.def("add", &add, R"pbdoc(
-        Add two numbers
+        Add two matrices
 
         Some other explanation about the add function.
     )pbdoc");
 
-    m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-        Subtract two numbers
-
-        Some other explanation about the subtract function.
-    )pbdoc");
+    // m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
+    //     Subtract two numbers
+    //
+    //     Some other explanation about the subtract function.
+    // )pbdoc");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

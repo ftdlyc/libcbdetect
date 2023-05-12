@@ -1,4 +1,4 @@
-name: libcdetect
+name: libcbdetect
 channels:
 - conda-forge
 dependencies:

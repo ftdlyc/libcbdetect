@@ -12,3 +12,6 @@ authors = [
   # { name = "My Name", email = "me@email.com" },
 ]
 requires-python = ">=3.7"
+
+[project.optional-dependencies]
+test = ["numpy"]
