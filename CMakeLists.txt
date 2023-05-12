@@ -6,7 +6,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 
 if (DEFINED ENV{CONDA_PREFIX})
     set(CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
@@ -21,8 +21,8 @@ set(LIB_TYPE STATIC)
 find_package(OpenCV REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
-add_subdirectory(path/to/cvnp)
-target_link_libraries(your_target PRIVATE cvnp)
+# add_subdirectory(path/to/cvnp)
+# target_link_libraries(your_target PRIVATE cvnp)
 
 set(THIRD_PARTY_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS})
 set(THIRD_PARTY_LIBS ${OpenCV_LIBS})

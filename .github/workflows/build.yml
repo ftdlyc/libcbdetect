@@ -32,7 +32,7 @@ jobs:
           # printenv | sort
       - name: Build
         run: |
-          python -m build
+          CMAKE_BUILD_PARALLEL_LEVEL=8 python -m build
       - name: Test with unittest
         run: |
           python -m unittest
