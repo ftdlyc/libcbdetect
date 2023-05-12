@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.15)
 project(Libcbdetect)
 
 # set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
@@ -12,12 +12,16 @@ if (DEFINED ENV{CONDA_PREFIX})
     set(CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
 endif()
 
-set(LIB_TYPE STATIC)
+# set(LIB_TYPE STATIC)
 
 # Set the path to the Homebrew-installed OpenCV libraries
 # set(OpenCV_DIR "/usr/local/opt/opencv@4")
 
 # find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
+find_package(
+  Python
+  COMPONENTS Interpreter Development.Module
+  REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
@@ -35,4 +39,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/libcbdetect)
 pybind11_add_module(cbdetect_py MODULE src/python/libcbdetect.cc)
 target_link_libraries(cbdetect_py PRIVATE cbdetect)
 
-install(TARGETS cbdetect_py DESTINATION ${SKBUILD_PROJECT_NAME})
+if(SKBUILD_PROJECT_NAME)
+    install(TARGETS cbdetect_py DESTINATION ${SKBUILD_PROJECT_NAME})
+endif()
