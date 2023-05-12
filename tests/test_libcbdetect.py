@@ -1,4 +1,4 @@
-from cbdetect import add
+from cbdetect_py import add
 from unittest import TestCase
 
 class TestAdd(TestCase):
