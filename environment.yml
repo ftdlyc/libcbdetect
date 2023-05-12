@@ -1,0 +1,7 @@
+name: libcdetect
+channels:
+- conda-forge
+dependencies:
+- opencv
+- pybind11
+

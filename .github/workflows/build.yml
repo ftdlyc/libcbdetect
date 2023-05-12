@@ -1,0 +1,35 @@
+name: Build, lint and test
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Conda environment from environment.yml
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          cache-downloads: true
+          cache-env: true
+          environment-file: environment.yml
+          # environment-name: libcdetect
+      # - run: |
+      #     conda info
+      #     conda list
+      #     conda config --show-sources
+      #     conda config --show
+          # printenv | sort
+      - name: Build
+        run: |
+          python -m build
+      - name: Test with unittest
+        run: |
+          python -m unittest
