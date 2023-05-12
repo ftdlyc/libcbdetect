@@ -1,0 +1,3 @@
+[submodule "external/cvnp"]
+	path = external/cvnp
+	url = https://github.com/pthom/cvnp.git
