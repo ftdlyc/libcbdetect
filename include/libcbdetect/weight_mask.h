@@ -47,7 +47,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL std::unordered_map<int, cv::Mat> weight_mask(const std::vector<int>& radius);
+std::unordered_map<int, cv::Mat> weight_mask(const std::vector<int>& radius);
 
 }
 

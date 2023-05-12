@@ -46,7 +46,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void find_corners(const cv::Mat& img, Corner& corners,
+void find_corners(const cv::Mat& img, Corner& corners,
                                        const Params& params = Params());
 
 }

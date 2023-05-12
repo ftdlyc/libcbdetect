@@ -46,7 +46,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void boards_from_corners(const cv::Mat& img, const Corner& corners,
+void boards_from_corners(const cv::Mat& img, const Corner& corners,
                                               std::vector<Board>& boards, const Params& params);
 
 }

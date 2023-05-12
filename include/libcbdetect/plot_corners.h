@@ -44,9 +44,9 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void plot_corners(const cv::Mat& img, const std::vector<cv::Point2d>& corners, const char* str);
+void plot_corners(const cv::Mat& img, const std::vector<cv::Point2d>& corners, const char* str);
 
-LIBCBDETECT_DLL_DECL void plot_corners(const cv::Mat& img, const Corner& corners);
+void plot_corners(const cv::Mat& img, const Corner& corners);
 
 } // namespace cbdetect
 
