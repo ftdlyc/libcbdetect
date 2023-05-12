@@ -2,6 +2,7 @@ name: libcdetect
 channels:
 - conda-forge
 dependencies:
+- build
 - opencv
 - pybind11
 
