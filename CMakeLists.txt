@@ -29,11 +29,11 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/libcbdetect)
 add_subdirectory(external/cvnp)
 
-pybind11_add_module(cbdetect_py MODULE src/python/libcbdetect.cc)
+pybind11_add_module(cbdetect_py MODULE src/bindings/cbdetect_py.cc)
 target_link_libraries(cbdetect_py PRIVATE cbdetect)
 target_link_libraries(cbdetect_py PRIVATE cvnp)
 target_compile_definitions(cbdetect_py PRIVATE VERSION_INFO=${PROJECT_VERSION})
 
 if(DEFINED SKBUILD_PROJECT_NAME)
-  install(TARGETS cbdetect_py LIBRARY DESTINATION .)
+  install(TARGETS cbdetect_py LIBRARY DESTINATION cbdetect_py)
 endif()

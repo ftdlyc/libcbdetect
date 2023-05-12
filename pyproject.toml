@@ -15,3 +15,7 @@ requires-python = ">=3.7"
 
 [project.optional-dependencies]
 test = ["numpy"]
+
+
+[tool.scikit-build]
+sdist.include = ["src/cbdetect_py.pyi"]
