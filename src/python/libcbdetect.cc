@@ -1,4 +1,9 @@
 #include <pybind11/pybind11.h>
+#include "libcbdetect/boards_from_corners.h"
+#include "libcbdetect/config.h"
+#include "libcbdetect/find_corners.h"
+#include "libcbdetect/plot_boards.h"
+#include "libcbdetect/plot_corners.h"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
