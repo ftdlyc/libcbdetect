@@ -73,10 +73,9 @@ PYBIND11_MODULE(cbdetect_py, m) {
       .def_readwrite("energy", &Board::energy)
       .def_readwrite("num", &Board::num);
   m.def("find_corners", &find_corners, "Find corners in the image", "img"_a,
-        "corners"_a, "params"_a);
-  m.def("boards_from_corners", &boards_from_corners,
-        "Generate boards from the corners", "img"_a, "corners"_a, "boards"_a,
         "params"_a);
+  m.def("boards_from_corners", &boards_from_corners,
+        "Generate boards from the corners", "img"_a, "corners"_a, "params"_a);
 
 #ifdef VERSION_INFO
   m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

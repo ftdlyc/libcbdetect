@@ -46,8 +46,8 @@
 
 namespace cbdetect {
 
-void boards_from_corners(const cv::Mat& img, const Corner& corners,
-                                              std::vector<Board>& boards, const Params& params);
+std::vector<Board> boards_from_corners(const cv::Mat& img, const Corner& corners,
+                                              const Params& params);
 
 }
 

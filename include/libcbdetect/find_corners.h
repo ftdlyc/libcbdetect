@@ -46,8 +46,7 @@
 
 namespace cbdetect {
 
-void find_corners(const cv::Mat& img, Corner& corners,
-                                       const Params& params = Params());
+Corner find_corners(const cv::Mat& img, const Params& params = Params());
 
 }
 

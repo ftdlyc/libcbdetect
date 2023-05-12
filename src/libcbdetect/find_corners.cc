@@ -129,7 +129,8 @@ void find_corners_reiszed(const cv::Mat& img, Corner& corners, const Params& par
   }
 }
 
-void find_corners(const cv::Mat& img, Corner& corners, const Params& params) {
+Corner find_corners(const cv::Mat& img, const Params& params) {
+  Corner corners;
   // clear old data
   corners.p.clear();
   corners.r.clear();
@@ -164,7 +165,7 @@ void find_corners(const cv::Mat& img, Corner& corners, const Params& params) {
   // get corner's initial locaiton
   get_init_location(img_norm, img_du, img_dv, corners, params);
   if(corners.p.empty()) {
-    return;
+    return corners;
   }
   if(params.show_processing) {
     printf("Initializing conres (%d x %d) ... %lu\n", img_norm.cols, img_norm.rows, corners.p.size());
@@ -225,6 +226,8 @@ void find_corners(const cv::Mat& img, Corner& corners, const Params& params) {
   if(params.show_debug_image) {
     plot_corners(img, corners.p, "scoring corners");
   }
+
+  return corners;
 }
 
 } // namespace cbdetect
