@@ -20,6 +20,8 @@ jobs:
           cache-downloads: true
           cache-env: true
           environment-file: environment.yml
+          extra-specs: |
+            python=${{ matrix.python-version }}
           # environment-name: libcdetect
       # - run: |
       #     conda info
