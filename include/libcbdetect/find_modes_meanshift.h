@@ -44,7 +44,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<double>& hist,
+std::vector<std::pair<int, double>> find_modes_meanshift(const std::vector<double>& hist,
                                                                               double sigma);
 
 }

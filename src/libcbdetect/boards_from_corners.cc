@@ -98,7 +98,8 @@ void debug_grow_process(const cv::Mat& img, const Corner& corners, const Board& 
   cv::waitKey();
 }
 
-void boards_from_corners(const cv::Mat& img, const Corner& corners, std::vector<Board>& boards, const Params& params) {
+std::vector<Board> boards_from_corners(const cv::Mat& img, const Corner& corners, const Params& params) {
+  std::vector<Board> boards;
   // intialize boards
   boards.clear();
   Board board;
@@ -230,6 +231,7 @@ void boards_from_corners(const cv::Mat& img, const Corner& corners, std::vector<
     std::fill(used.begin(), used.end(), 0);
     n += 2;
   }
+  return boards;
 }
 
 } // namespace cbdetect

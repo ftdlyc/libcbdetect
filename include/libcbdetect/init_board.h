@@ -44,7 +44,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL bool init_board(const Corner& corners, std::vector<int>& used, Board& board, int idx);
+bool init_board(const Corner& corners, std::vector<int>& used, Board& board, int idx);
 
 }
 

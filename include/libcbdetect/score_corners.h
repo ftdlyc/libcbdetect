@@ -47,10 +47,10 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL void sorce_corners(const cv::Mat& img, const cv::Mat& img_weight,
+void sorce_corners(const cv::Mat& img, const cv::Mat& img_weight,
                                         Corner& corners, const Params& params);
 
-LIBCBDETECT_DLL_DECL void remove_low_scoring_corners(double tau, Corner& corners, const Params& params);
+void remove_low_scoring_corners(double tau, Corner& corners, const Params& params);
 
 } // namespace cbdetect
 

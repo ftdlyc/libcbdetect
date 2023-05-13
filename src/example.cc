@@ -10,7 +10,7 @@
 using namespace std::chrono;
 
 void detect(const char* str, cbdetect::CornerType corner_type) {
-  cbdetect::Corner corners;
+  // cbdetect::Corner corners;
   std::vector<cbdetect::Board> boards;
   cbdetect::Params params;
   params.corner_type = corner_type;
@@ -18,11 +18,11 @@ void detect(const char* str, cbdetect::CornerType corner_type) {
   cv::Mat img = cv::imread(str, cv::IMREAD_COLOR);
 
   auto t1 = high_resolution_clock::now();
-  cbdetect::find_corners(img, corners, params);
+  auto corners = cbdetect::find_corners(img, params);
   auto t2 = high_resolution_clock::now();
   cbdetect::plot_corners(img, corners);
   auto t3 = high_resolution_clock::now();
-  cbdetect::boards_from_corners(img, corners, boards, params);
+  auto borders = cbdetect::boards_from_corners(img, corners, params);
   auto t4 = high_resolution_clock::now();
   printf("Find corners took: %.3f ms\n", duration_cast<microseconds>(t2 - t1).count() / 1000.0);
   printf("Find boards took: %.3f ms\n", duration_cast<microseconds>(t4 - t3).count() / 1000.0);

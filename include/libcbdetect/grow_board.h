@@ -50,7 +50,7 @@ enum GrowType {
   GrowType_Boundary,
 };
 
-LIBCBDETECT_DLL_DECL GrowType grow_board(const Corner& corners, std::vector<int>& used, Board& board,
+GrowType grow_board(const Corner& corners, std::vector<int>& used, Board& board,
                                          std::vector<cv::Point2i>& proposal, int direction, const Params& params);
 
 } // namespace cbdetect

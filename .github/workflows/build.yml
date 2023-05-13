@@ -1,0 +1,33 @@
+name: Build, lint and test
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+        os: [ubuntu-latest, macos-latest]
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install Conda environment from environment.yml
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          cache-downloads: true
+          cache-env: true
+          environment-file: environment.yml
+          extra-specs: |
+            python=${{ matrix.python-version }}
+      - name: Build
+        run: |
+          CMAKE_BUILD_PARALLEL_LEVEL=8 python -m pip install ".[test]"
+      - name: Test with unittest
+        run: |
+          python -m unittest

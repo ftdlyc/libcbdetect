@@ -44,7 +44,7 @@
 
 namespace cbdetect {
 
-LIBCBDETECT_DLL_DECL cv::Point3i board_energy(const Corner& corners, Board& board, const Params& params);
+cv::Point3i board_energy(const Corner& corners, Board& board, const Params& params);
 
 }
 
