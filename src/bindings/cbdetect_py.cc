@@ -9,8 +9,6 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-cv::Mat add(cv::Mat a, cv::Mat b) { return a + b; }
-
 namespace py = pybind11;
 using namespace cbdetect;
 using namespace pybind11::literals;

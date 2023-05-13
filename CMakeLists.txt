@@ -11,9 +11,9 @@ set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 
 set(CMAKE_CXX_STANDARD 14)
 
-# if (DEFINED ENV{CONDA_PREFIX})
-#     set(CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
-# endif()
+if (DEFINED ENV{CONDA_PREFIX})
+    set(CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
+endif()
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 
 find_package(OpenCV REQUIRED)
@@ -33,6 +33,7 @@ pybind11_add_module(cbdetect_py MODULE src/bindings/cbdetect_py.cc)
 target_link_libraries(cbdetect_py PRIVATE cbdetect)
 target_link_libraries(cbdetect_py PRIVATE cvnp)
 target_compile_definitions(cbdetect_py PRIVATE VERSION_INFO=${PROJECT_VERSION})
+set_target_properties(cbdetect_py PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(DEFINED SKBUILD_PROJECT_NAME)
   install(TARGETS cbdetect_py LIBRARY DESTINATION cbdetect_py)
