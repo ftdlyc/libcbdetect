@@ -10,7 +10,7 @@ class CBDetectTestCase(unittest.TestCase):
     def test_detect(self):
         image_paths = [
             ("example_data/e2.png", CornerType.SaddlePoint),
-            # ("example_data/e6.png", CornerType.MonkeySaddlePoint),
+            ("example_data/e6.png", CornerType.MonkeySaddlePoint),
         ]
 
         for image_path, corner_type in image_paths:
