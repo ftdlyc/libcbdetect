@@ -2,8 +2,7 @@ import unittest
 
 import cv2
 
-from cbdetect_py import (Corner, CornerType, Params, boards_from_corners,
-                         find_corners)
+from cbdetect_py import CornerType, Params, boards_from_corners, find_corners
 
 
 class CBDetectTestCase(unittest.TestCase):
