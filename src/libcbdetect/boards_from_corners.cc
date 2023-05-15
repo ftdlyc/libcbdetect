@@ -111,6 +111,9 @@ std::vector<Board> boards_from_corners(const cv::Mat& img, const Corner& corners
     std::default_random_engine e;
     auto time = std::chrono::system_clock::now().time_since_epoch();
     e.seed(static_cast<unsigned long>(time.count()));
+    if (corners.p.size() == 0) {
+      return boards;
+    }
     start = e() % corners.p.size();
   }
 
