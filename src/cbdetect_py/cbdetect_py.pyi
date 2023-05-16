@@ -1,6 +1,7 @@
 from typing import ClassVar, List
 
 import numpy
+
 HessianResponse: DetectMethod
 LocalizedRadonTransform: DetectMethod
 MonkeySaddlePoint: CornerType
@@ -79,5 +80,7 @@ class Params:
     strict_grow: bool
     def __init__(self) -> None: ...
 
-def boards_from_corners(img: numpy.ndarray, corners: Corner, params: Params) -> List[Board]: ...
+def boards_from_corners(
+    img: numpy.ndarray, corners: Corner, params: Params
+) -> List[Board]: ...
 def find_corners(img: numpy.ndarray, params: Params) -> Corner: ...
