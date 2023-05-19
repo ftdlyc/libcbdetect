@@ -26,10 +26,8 @@ class CBDetectTestCase(unittest.TestCase):
                 boards = boards_from_corners(img, corners, params)
                 # plot_boards(img, corners, boards, params)
 
-                self.assertFalse(
-                    not corners.p, f"No corners found in image: {image_path}"
-                )
-                self.assertFalse(not boards, f"No boards found in image: {image_path}")
+                self.assertTrue(corners.p, f"No corners found in image: {image_path}")
+                self.assertTrue(boards, f"No boards found in image: {image_path}")
 
 
 if __name__ == "__main__":
