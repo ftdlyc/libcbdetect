@@ -33,7 +33,9 @@ pybind11_add_module(cbdetect_py MODULE src/bindings/cbdetect_py.cc)
 target_link_libraries(cbdetect_py PRIVATE cbdetect)
 target_link_libraries(cbdetect_py PRIVATE cvnp)
 target_compile_definitions(cbdetect_py PRIVATE VERSION_INFO=${PROJECT_VERSION})
+
 set_target_properties(cbdetect_py PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(cbdetect PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(DEFINED SKBUILD_PROJECT_NAME)
   install(TARGETS cbdetect_py LIBRARY DESTINATION cbdetect_py)
