@@ -112,7 +112,7 @@ void non_maximum_suppression_sparse(Corner& corners, int n, cv::Size img_size, c
     }
     for(int j2 = v - n; j2 <= v + n; ++j2) {
       for(int i2 = u - n; i2 <= u + n; ++i2) {
-        if(j2 < 0 || j2 >= img_size.height || i2 < 0 || i2 >= img_size.height) {
+        if(j2 < 0 || j2 >= img_size.height || i2 < 0 || i2 >= img_size.width) {
           continue;
         }
         if(img_score.at<double>(j2, i2) > score && (i2 != u || j2 != v)) {
